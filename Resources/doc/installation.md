@@ -6,10 +6,19 @@ Add the package to your dependencies
 ------------------------------------
 ``` php
 "require": {
-    "lunetics/timezone-bundle": "2.1.x-dev",
+    "lunetics/timezone-bundle": "2.1.*",
     ....
 },
 ```
+
+If you want the bleeding-edge version, add this instead of above:
+``` php
+"require": {
+    "lunetics/timezone-bundle": "dev-master",
+    ....
+},
+```
+
 
 Register the bundle in your kernel
 ----------------------------------
