@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="lunetics_timezone.timezone_listener.class">%lunetics_timezone.guesser.listener.class%</parameter>
+        <parameter key="lunetics_timezone.guesser_manager.class">%lunetics_timezone.guesser.manager.class%</parameter>
+    </parameters>
+
+    <services>
+
+        <service id="lunetics_timezone.geo_guesser" class="%lunetics_timezone.service.geo.class%">
+            <tag name="lunetics_timezone.guesser" alias="geo" />
+        </service>
+        <service id="lunetics_timezone.locale_guesser" class="%lunetics_timezone.service.locale.class%">
+            <tag name="lunetics_timezone.guesser" alias="locale" />
+        </service>
+        <service id="lunetics_timezone.locale_mapper_guesser" class="%lunetics_timezone.service.locale_mapper.class%">
+            <argument>%lunetics_timezone.service.locale_mapper.data%</argument>
+            <tag name="lunetics_timezone.guesser" alias="locale_mapper" />
+        </service>
+
+        <service id="lunetics_timezone.guesser_manager" class="%lunetics_timezone.guesser_manager.class%">
+            <argument>%lunetics_timezone.guesser.order%</argument>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="lunetics_timezone.locale_listener" class="%lunetics_timezone.timezone_listener.class%">
+            <argument type="service" id="session"/>
+            <argument type="service" id="lunetics_timezone.guesser_manager" />
+            <argument type="service" id="validator"/>
+            <argument type="service" id="logger"/>
+            <tag name="kernel.event_listener" event="kernel.request" method="onKernelRequest"/>
+        </service>
+
+    </services>
+</container>
