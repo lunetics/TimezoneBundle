@@ -1,0 +1,152 @@
+#code	timezone	            language      country                 capital
+locales_lang_only:
+  ar:     Asia/Dubai            # Arabic        United Arab Emirates    Abu Dhabi
+  be:     Europe/Minsk          # Belarusian    Belarus                 Minsk
+  ca:     Europe/Madrid         # Catalan       Spain                   Madrid
+  bg:     Europe/Sofia          # Bulgarian     Bulgaria                Sofia
+  cs:     Europe/Prague         # Czech         Czech Republic          Prague
+  da:     Europe/Copenhagen     # Danish        Denmark                 Copenhagen
+  de:     Europe/Berlin         # German        Germany                 Berlin
+  el:     Asia/Nicosia          # Greek         Cyprus                  Nicosia
+  en:     America/Los_Angeles   # English       United States           Washington
+  et:     Europe/Tallinn        # Estonian      Estonia                 Tallinn
+  es:     Europe/Madrid         # Spanish       Spain                   Madrid
+  fi:     Europe/Helsinki       # Finnish       Finland                 Helsinki
+  fr:     Europe/Brussels	    # French        Belgium                 Brussels
+  ga:     Europe/Dublin         # Irish         Ireland                 Dublin
+  hr:     Europe/Zagreb         # Croatian      Croatia                 Zagreb
+  hu:     Europe/Budapest       # Hungarian     Hungary                 Budapest
+  in:     Asia/Jakarta          # Indonesian    Indonesia               Jakarta
+  is:     Atlantic/Reykjavik    # Icelandic     Iceland                 Reykjavik
+  it:     Europe/Rome           # Italian       Italy                   Rome
+  iw:     Asia/Jerusalem        # Hebrew        Israel                  Jerusalem*
+  ja:     Asia/Tokyo            # Japanese      Japan                   Tokyo
+  ko:     Asia/Seoul            # Korean        South Korea             Seoul
+  lt:     Europe/Vilnius        # Lithuanian    Lithuania               Vilnius
+  lv:     Europe/Riga           # Latvian       Latvia                  Riga
+  mk:     Europe/Skopje         # Macedonian    Macedonia               Skopje
+  ms:     Asia/Kuala_Lumpur     # Malay         Malaysia                Kuala Lumpur
+  mt:     Europe/Malta          # Maltese       Malta                   Valletta
+  nl:     Europe/Amsterdam      # Dutch         Netherlands             Amsterdam
+  no:     Europe/Oslo           # Norwegian     Norway                  Oslo
+  pl:     Europe/Warsaw         # Polish        Poland                  Warsaw
+  ro:     Europe/Bucharest      # Romanian      Romania                 Bucharest
+  ru:     Europe/Moscow         # Russian       Russia                  Moscow
+  sk:     Europe/Bratislava     # Slovak        Slovakia                Bratislava
+  sl:     Europe/Ljubljana      # Slovenian     Slovenia                Ljubljana
+  sq:     Europe/Tirane         # Albanian      Albania                 Tirane
+  sr:     Europe/Sarajevo       # Serbian       Bosnia and Herzegovina  Sarajevo
+  sv:     Europe/Stockholm      # Swedish       Sweden                  Stockholm
+  tr:     Europe/Istanbul       # Turkish       Turkey                  Ankara
+  pt:     Europe/Lisbon         # Portuguese    Portugal                Lisbon
+  th:     Asia/Bangkok          # Thai          Thailand                Bangkok
+  uk:     Europe/Kiev           # Ukrainian     Ukraine                 Kyiv
+  vi:     Asia/Ho_Chi_Minh      # Vietnamese    Vietnam                 Hanoi
+  zh:     Asia/Taipei           # Chinese       Taiwan                  Taipei
+locales_full:
+  ar_AE:  Asia/Dubai            # Arabic        United Arab Emirates    Abu Dhabi
+  ar_BH:  Asia/Bahrain          # Arabic        Bahrain                 Manama
+  ar_DZ:  Africa/Algiers        # Arabic        Algeria                 Algiers
+  ar_EG:  Africa/Cairo          # Arabic        Egypt                   Cairo
+  ar_IQ:  Asia/Baghdad          # Arabic        Iraq                    Baghdad
+  ar_KW:  Asia/Kuwait           # Arabic        Kuwait                  Kuwait City
+  ar_LB:  Asia/Beirut           # Arabic        Lebanon                 Beirut
+  ar_LY:  Africa/Tripoli        # Arabic        Libya                   Tripoli
+  ar_MA:  Africa/Casablanca     # Arabic        Morocco                 Rabat
+  ar_OM:  Asia/Muscat           # Arabic        Oman                    Muscat
+  ar_QA:  Asia/Qatar            # Arabic        Qatar                   Doha
+  ar_SA:  Asia/Riyadh           # Arabic        Saudi Arabia            Riyadh
+  ar_SY:  Asia/Damascus         # Arabic        Syria                   Damascus
+  ar_SD:  Africa/Khartoum       # Arabic        Sudan                   Khartoum
+  ar_TN:  Africa/Tunis          # Arabic        Tunisia                 Tunis
+  ar_YE:  Asia/Qatar            # Arabic        Yemen                   Sanaa
+  ar_JO:  Asia/Amman            # Arabic        Jordan                  Amman
+  be_BY:  Europe/Minsk          # Belarusian	Belarus                 Minsk
+  bg_BG:  Europe/Sofia          # Bulgarian     Bulgaria                Sofia
+  ca_ES:  Europe/Madrid         # Catalan       Spain                   Madrid
+  cs_CZ:  Europe/Prague         # Czech         Czech Republic          Prague
+  da_DK:  Europe/Copenhagen     # Danish        Denmark                 Copenhagen
+  de_AT:  Europe/Vienna         # German        Austria                 Vienna
+  de_DE:  Europe/Berlin         # German        Germany                 Berlin
+  de_CH:  Europe/Zurich         # German        Switzerland             Bern
+  de_LU:  Europe/Luxembourg     # German        Luxembourg              Luxembourg
+  el_CY:  Asia/Nicosia          # Greek         Cyprus                  Nicosia
+  el_GR:  Europe/Athens	        # Greek         Greece                  Athens
+  en_AU:  Australia/Canberra    # English       Australia               Canberra
+  en_CA:  America/Montreal      # English       Canada                  Ottawa
+  en_GB:  Europe/London         # English       United Kingdom          London
+  en_IE:  Europe/Dublin         # English       Ireland                 Dublin
+  en_IN:  Asia/Calcutta         # English       India                   New Delhi
+  en_NZ:  Pacific/Auckland      # English       New Zealand             Wellington
+  en_MT:  Europe/Malta          # English       Malta                   Valletta
+  en_PH:  Asia/Manila           # English       Philippines	            Manila
+  en_SG:  Asia/Singapore        # English       Singapore               Singapore
+  en_US:  America/Los_Angeles   # English       United States           Washington
+  en_ZA:  Africa/Johannesburg   # English       South Africa            Pretoria
+  es_AR:  America/Argentina/Buenos_Aires # Spanish Argentina            Buenos Aires
+  es_BO:  America/La_Paz        # Spanish	    Bolivia                 La Paz
+  es_CO:  America/Bogota        # Spanish       Colombia                Bogota
+  es_CR:  America/Costa_Rica    # Spanish       Costa Rica              San Jose
+  es_CL:  America/Santiago      # Spanish       Chile                   Santiago
+  es_DO:  America/Santo_Domingo # Spanish	    Dominican Republic      Santo Domingo
+  es_EC:  America/Guayaquil     # Spanish       Ecuador                 Quito
+  es_ES:  Europe/Madrid         # Spanish       Spain                   Madrid
+  es_GT:  America/Guatemala     # Spanish       Guatemala               Guatemala City
+  es_HN:  America/Tegucigalpa   # Spanish       Honduras                Tegucigalpa
+  es_MX:  America/Mexico_City   # Spanish       Mexico                  Mexico City
+  es_NI:  America/Managua       # Spanish       Nicaragua               Managua
+  es_PA:  America/Panama        # Spanish       Panama                  Panama City
+  es_PE:  America/Lima          # Spanish       Peru                    Lima
+  es_PR:  America/Argentina/San_Juan # Spanish    Puerto Rico           San Juan
+  es_PY:  America/Asuncion      # Spanish       Paraguay                Asuncion
+  es_SV:  America/El_Salvador   # Spanish       El Salvador             San Salvador
+  es_US:  America/Los_Angeles   # Spanish       United States           Washington
+  es_UY:  America/Montevideo    # Spanish       Uruguay                 Montevideo
+  es_VE:  America/Caracas       # Spanish       Venezuela               Caracas
+  et_EE:  Europe/Tallinn        # Estonian      Estonia                 Tallinn
+  fi_FI:  Europe/Helsinki       # Finnish       Finland                 Helsinki
+  fr_BE:  Europe/Brussels       # French        Belgium                 Brussels
+  fr_CA:  America/Montreal      # French        Canada                  Ottawa
+  fr_CH:  Europe/Zurich         # French        Switzerland             Bern
+  fr_FR:  Europe/Paris          # French        France                  Paris
+  fr_LU:  Europe/Luxembourg     # French        Luxembourg              Luxembourg
+  ga_IE:  Europe/Dublin         # Irish         Ireland                 Dublin
+  hi_IN:  Asia/Calcutta         # Hindi         India                   New Delhi
+  hu_HU:  Europe/Budapest       # Hungarian     Hungary                 Budapest
+  hr_HR:  Europe/Zagreb         # Croatian      Croatia                 Zagreb
+  in_ID:  Asia/Jakarta          # Indonesian    Indonesia               Jakarta
+  it_IT:  Europe/Rome           # Italian       Italy                   Rome
+  it_CH:  Europe/Zurich         # Italian       Switzerland             Bern
+  is_IS:  Atlantic/Reykjavik    # Icelandic     Iceland                 Reykjavik
+  iw_IL:  Asia/Jerusalem        # Hebrew        Israel                  Jerusalem*
+  ja_JP:  Asia/Tokyo            # Japanese      Japan                   Tokyo
+  ko_KR:  Asia/Seoul            # Korean        South Korea             Seoul
+  lt_LT:  Europe/Vilnius        # Lithuanian    Lithuania               Vilnius
+  lv_LV:  Europe/Riga           # Latvian       Latvia                  Riga
+  mk_MK:  Europe/Skopje         # Macedonian    Macedonia               Skopje
+  mt_MT:  Europe/Malta          # Maltese       Malta                   Valletta
+  ms_MY:  Asia/Kuala_Lumpur     # Malay         Malaysia                Kuala Lumpur
+  nl_BE:  Europe/Brussels       # Dutch         Belgium                 Brussels
+  nl_NL:  Europe/Amsterdam      # Dutch         Netherlands             Amsterdam
+  no_NO:  Europe/Oslo           # Norwegian     Norway                  Oslo
+  pl_PL:  Europe/Warsaw         # Polish        Poland                  Warsaw
+  pt_BR:  America/Sao_Paulo     # Portuguese    Brazil                  Brasilia
+  pt_PT:  Europe/Lisbon         # Portuguese    Portugal                Lisbon
+  ro_RO:  Europe/Bucharest      # Romanian      Romania                 Bucharest
+  ru_RU:  Europe/Moscow         # Russian       Russia                  Moscow
+  sk_SK:  Europe/Bratislava     # Slovak        Slovakia                Bratislava
+  sl_SI:  Europe/Ljubljana      # Slovenian     Slovenia                Ljubljana
+  sq_AL:  Europe/Tirane         # Albanian      Albania                 Tirane
+  sr_BA:  Europe/Sarajevo       # Serbian       Bosnia and Herzegovina  Sarajevo
+  sr_CS:  Europe/Belgrade       # Serbian       Serbia and Montenegro   Belgrade
+  sr_ME:  Europe/Podgorica      # Serbian       Montenegro              Podgorica
+  sr_RS:  Europe/Belgrade       # Serbian       Serbia                  Belgrade
+  sv_SE:  Europe/Stockholm      # Swedish       Sweden                  Stockholm
+  th_TH:  Asia/Bangkok          # Thai          Thailand                Bangkok
+  tr_TR:  Europe/Istanbul       # Turkish       Turkey                  Ankara
+  uk_UA:  Europe/Kiev           # Ukrainian     Ukraine                 Kyiv
+  zh_SG:  Asia/Singapore        # Chinese       Singapore               Singapore
+  zh_TW:  Asia/Taipei           # Chinese       Taiwan                  Taipei
+  vi_VN:  Asia/Ho_Chi_Minh      # Vietnamese    Vietnam                 Hanoi
+  zh_CN:  Asia/Shanghai         # Chinese       China                   Beijing
+  zh_HK:  Asia/Hong_Kong        # Chinese       Hong Kong               Hong Kong
