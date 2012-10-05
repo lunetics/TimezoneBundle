@@ -12,7 +12,7 @@ locales_lang_only:
   et:     Europe/Tallinn        # Estonian      Estonia                 Tallinn
   es:     Europe/Madrid         # Spanish       Spain                   Madrid
   fi:     Europe/Helsinki       # Finnish       Finland                 Helsinki
-  fr:     Europe/Brussels	    # French        Belgium                 Brussels
+  fr:     Europe/Paris          # French        France                  Paris
   ga:     Europe/Dublin         # Irish         Ireland                 Dublin
   hr:     Europe/Zagreb         # Croatian      Croatia                 Zagreb
   hu:     Europe/Budapest       # Hungarian     Hungary                 Budapest
@@ -71,7 +71,7 @@ locales_full:
   de_CH:  Europe/Zurich         # German        Switzerland             Bern
   de_LU:  Europe/Luxembourg     # German        Luxembourg              Luxembourg
   el_CY:  Asia/Nicosia          # Greek         Cyprus                  Nicosia
-  el_GR:  Europe/Athens	        # Greek         Greece                  Athens
+  el_GR:  Europe/Athens         # Greek         Greece                  Athens
   en_AU:  Australia/Canberra    # English       Australia               Canberra
   en_CA:  America/Montreal      # English       Canada                  Ottawa
   en_GB:  Europe/London         # English       United Kingdom          London
