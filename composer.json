@@ -13,8 +13,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.3.2",
-        "ext-intl": "*",
-        "ext-geoip": ">=1.4.1"
+        "ext-intl": "*"
     },
     "autoload": {
         "psr-0": { "Lunetics\\TimezoneBundle": "" }
