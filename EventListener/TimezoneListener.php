@@ -37,17 +37,18 @@ class TimezoneListener
      * Construct the TimezoneListener
      *
      * @param Session                $session   Session
+     * @param string                 $sessionVar
      * @param TimezoneGuesserManager $manager   The Timezone Manager
      * @param Validator              $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, TimezoneGuesserManager $manager, Validator $validator, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, Validator $validator, LoggerInterface $logger = null)
     {
         $this->session = $session;
         $this->manager = $manager;
         $this->validator = $validator;
         $this->logger = $logger;
-        $this->sessionTimezoneString = 'lunetics_timezone';
+        $this->sessionTimezoneString = $sessionVar;
     }
 
     /**

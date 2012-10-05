@@ -31,6 +31,9 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('session_var')
+                    ->defaultValue('lunetics_timezone')
+                ->end()
                 ->arrayNode('guesser')
                     ->children()
                         ->arrayNode('manager')
