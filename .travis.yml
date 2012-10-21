@@ -9,7 +9,7 @@ env:
 
 before_script:
   - sudo apt-get install geoip-bin
-  - wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz .
+  - wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
   - gunzip GeoLiteCity.dat.gz
   - sudo mkdir -p /usr/share/GeoIP
   - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
