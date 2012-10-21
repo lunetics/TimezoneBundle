@@ -23,6 +23,13 @@ use Lunetics\TimezoneBundle\TimezoneGuesser\GeoTimezoneGuesser;
 class GeoTimezoneGuesserTest extends \PHPUnit_Framework_TestCase
 {
 
+    public function setUp()
+    {
+        if(!extension_loaded('geoip') || !geoip_db_avail(GEOIP_CITY_EDITION_REV0) OR !geoip_db_avail(GEOIP_CITY_EDITION_REV1)) {
+            $this->markTestSkipped();
+        }
+    }
+
     /**
      * @dataProvider getRequestWithValidIp
      *
