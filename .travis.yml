@@ -10,7 +10,8 @@ env:
 before_script:
   - sudo apt-get install geoip-bin
   - sudo apt-get install geoip-database
-  - ls /usr/share/GeoIP
+  - ls -l /usr/share/GeoIP
+  - echo "geoip.custom_directory=/usr/share/GeoIP/" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   #- wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
   #- gunzip GeoLiteCity.dat.gz
   #- sudo mkdir -p /usr/share/GeoIP
