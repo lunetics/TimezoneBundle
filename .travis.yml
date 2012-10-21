@@ -8,7 +8,7 @@ env:
   - SYMFONY_VERSION=dev-master
 
 before_script:
-  - sudo apt-get install geoip-bin
+  - sudo apt-get install php5-geoip
   - pecl install geoip
   - echo "extension=geoip.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - composer require symfony/framework-bundle:${SYMFONY_VERSION}
