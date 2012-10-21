@@ -27,7 +27,12 @@ class LocaleTimezoneGuesser implements TimezoneGuesserInterface
      */
     public function guessTimezone(Request $request)
     {
-        $countryCode = \Locale::getRegion($request->getLocale());
+        if (extension_loaded('intl')) {
+            $countryCode = \Locale::getRegion($request->getLocale());
+        } else {
+            $splittedLocale = explode('_', $request->getLocale());
+            $countryCode = count($splittedLocale) > 1 && preg_match('/^[A-Z]{2}$/', $splittedLocale[1]) ? $splittedLocale[1] : null;
+        }
         if (null !== $countryCode) {
             // Needs the @, cause otherwise the geoip_region_by_name function will send a PHP Notice
             $this->identifiedTimezone = @geoip_time_zone_by_country_and_region($countryCode);
