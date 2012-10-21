@@ -10,6 +10,8 @@ env:
 before_script:
   - composer require symfony/framework-bundle:${SYMFONY_VERSION}
   - composer install --dev
+  - pecl install geoip
+  - echo "extension=geoip.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 
 script: phpunit --coverage-text
 
