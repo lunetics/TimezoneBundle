@@ -12,11 +12,10 @@ before_script:
   - sudo apt-get install geoip-database
   - sudo apt-get install libgeoip-dev
   - ls -l /usr/share/GeoIP
-  - echo "geoip.custom_directory=/usr/share/GeoIP/" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-  #- wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-  #- gunzip GeoLiteCity.dat.gz
-  #- sudo mkdir -p /usr/share/GeoIP
-  #- sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+  - wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+  - gunzip GeoLiteCity.dat.gz
+  - sudo mkdir -p /usr/share/GeoIP
+  - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
   - pecl install geoip
   - echo "extension=geoip.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - composer require symfony/framework-bundle:${SYMFONY_VERSION}
