@@ -49,3 +49,19 @@ lunetics_timezone:
             - locale_mapper
             - locale
 ```
+
+PHP geoip extension
+===================
+The easiest way to install the pecl `geo` extension is to run:
+``` sh
+pecl install geoip
+```
+
+There shoult be a meta-package in your distributions, e.g. `pecl-geoip` port in FreeBSD or `php5-geoip` in Ubuntu.
+
+Install additional geoip database
+---------------------------------
+You also need to install the GeoLiteCity.dat file to use the `locale` guesser.
+* Download http://geolite.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz (or from Downloads in this github repo)
+* gunzip the file
+* Rename the file to **GeoIPCity.dat** and move it to `/usr/share/GeoIP/`
