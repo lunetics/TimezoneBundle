@@ -22,6 +22,13 @@ use Lunetics\TimezoneBundle\TimezoneGuesser\LocaleTimezoneGuesser;
 class LocaleTimezoneGuesserTest extends \PHPUnit_Framework_TestCase
 {
 
+    public function setUp()
+    {
+        if (!extension_loaded('geoip')) {
+            $this->markTestSkipped();
+        }
+    }
+
     /**
      * @dataProvider getRequestWithValidLocale
      *
