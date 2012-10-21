@@ -12,8 +12,8 @@ before_script:
   - sudo apt-get install geoip-database
   - sudo apt-get install libgeoip-dev
   - ls -l /usr/share/GeoIP
-  - wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-  - gunzip GeoLiteCity.dat.gz
+  - wget https://github.com/downloads/lunetics/TimezoneBundle/GeoLiteCity.dat.gz
+  - gunzip GeoLitels -aCity.dat.gz
   - sudo mkdir -p /usr/share/GeoIP
   - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
   - pecl install geoip
