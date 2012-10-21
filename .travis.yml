@@ -9,10 +9,11 @@ env:
 
 before_script:
   - sudo apt-get install geoip-bin
-  - wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
-  - gunzip GeoLiteCity.dat.gz
-  - sudo mkdir -p /usr/share/GeoIP
-  - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+  - sudo apt-get install geoip-database
+  #- wget http://www.maxmind.com/download/geoip/database/GeoLiteCity.dat.gz
+  #- gunzip GeoLiteCity.dat.gz
+  #- sudo mkdir -p /usr/share/GeoIP
+  #- sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
   - pecl install geoip
   - echo "extension=geoip.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - composer require symfony/framework-bundle:${SYMFONY_VERSION}
