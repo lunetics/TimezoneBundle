@@ -31,6 +31,19 @@ class LuneticsTimezoneExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
         $this->bindParameters($container, $this->getAlias(), $config);
+        $order = $container->getParameter('lunetics_timezone.guesser.order');
+        $extGeoip = extension_loaded('geoip');
+        if (!$extGeoip && in_array('geo', $order)) {
+            throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException('Cannot load the "geo" guesser without the pecl-geoip extension.');
+        }
+        if (in_array('locale', $order)) {
+            if (!$extGeoip) {
+                throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException('Cannot load the "locale" guesser without the pecl-geoip extension.');
+            }
+            if (!geoip_db_avail(GEOIP_CITY_EDITION_REV0) OR !geoip_db_avail(GEOIP_CITY_EDITION_REV1)) {
+                throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException('You need to install the GeoCityLite.dat file.');
+            }
+        }
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.xml');
         $this->loadLocaleMapper($container);
@@ -50,6 +63,7 @@ class LuneticsTimezoneExtension extends Extension
         $file = new FileLocator(__DIR__ . '/../Resources/config');
         $container->setParameter('lunetics_timezone.service.locale_mapper.data', $localeMapper->parse(file_get_contents($file->locate('LocaleMapper.yml'))));
     }
+
     /**
      * Binds the config Parameters to the container
      *
