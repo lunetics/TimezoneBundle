@@ -16,15 +16,20 @@ use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Validator\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 use Lunetics\TimezoneBundle\TimezoneGuesser\TimezoneGuesserManager;
+use Lunetics\TimezoneBundle\Event\FilterTimezoneEvent;
+use Lunetics\TimezoneBundle\TimezoneBundleEvents;
+use Lunetics\TimezoneBundle\Validator\Timezone;
 
 /**
  * Listener for Timezone detection
  *
  * @author Matthias Breddin <mb@lunetics.com>
  */
-class TimezoneListener
+class TimezoneListener implements EventSubscriberInterface
 {
     protected $session;
     protected $manager;
@@ -69,17 +74,36 @@ class TimezoneListener
 
         if (!$this->session->has($this->sessionTimezoneString)) {
             $this->timezone = $this->manager->runTimezoneGuessing($request);
-            $errors = $this->validator->validateValue($this->timezone, new \Lunetics\TimezoneBundle\Validator\Timezone());
-            if (count($errors) > 0) {
+
+            $errors = $this->validator->validateValue($this->timezone, new Timezone());
+
+            if ($errors->count() > 0) {
                 if (null !== $this->logger) {
-                    $this->logger->notice(sprintf('Timezone %s is Invalid!', $this->timezone));
+                    $iterator = $errors->getIterator();
+                    while ($iterator->valid()) {
+                        $this->logger->notice($iterator->current());
+                        $iterator->next();
+                    }
                 }
 
                 return;
             }
-            $this->logEvent(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $this->timezone, $this->sessionTimezoneString));
-            $this->session->set($this->sessionTimezoneString, $this->timezone);
+
+            $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
+            $this->onTimezoneChange($localeSwitchEvent);
         }
+    }
+
+    /**
+     * Sets the timezone in the session
+     *
+     * @param FilterTimezoneEvent $event
+     */
+    public function onTimezoneChange(FilterTimezoneEvent $event)
+    {
+        $timezone = $event->getTimezone();
+        $this->session->set($this->sessionTimezoneString, $timezone);
+        $this->logEvent(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $timezone, $this->sessionTimezoneString));
     }
 
     /**
@@ -93,5 +117,16 @@ class TimezoneListener
         if (null !== $this->logger) {
             $this->logger->info(sprintf($logMessage, $parameters));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return array(
+             KernelEvents::REQUEST => array('onKernelRequest'),
+             TimezoneBundleEvents::TIMEZONE_CHANGE => array('onTimezoneChange')
+        );
     }
 }
