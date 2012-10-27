@@ -1,11 +1,11 @@
 <?php
-
-/*
- * This file is part of the LuneticsLocaleBundle package.
+/**
+ * This file is part of the LuneticsTimezoneBundle package.
  *
+ * <https://github.com/lunetics/TimezoneBundle/>
  *
  * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * file that is distributed with this source code.
  */
 
 namespace Lunetics\TimezoneBundle\Tests\DependencyInjection;
