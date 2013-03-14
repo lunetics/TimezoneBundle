@@ -12,6 +12,7 @@ matrix:
 env:
   - SYMFONY_VERSION=2.1.*
   - SYMFONY_VERSION=2.2.*
+  - SYMFONY_VERSION=dev-master
 
 before_script:
   - sudo apt-get install geoip-bin
