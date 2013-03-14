@@ -90,7 +90,7 @@ class TimezoneListener implements EventSubscriberInterface
             }
 
             $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
-            $this->onTimezoneChange($localeSwitchEvent);
+            $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
         }
     }
 
