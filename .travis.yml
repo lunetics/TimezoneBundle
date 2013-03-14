@@ -23,7 +23,6 @@ before_script:
   - sudo mkdir -p /usr/share/GeoIP
   - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
   - pecl install geoip
-  - echo "extension=geoip.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
   - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update
   - composer install --dev --prefer-source
 
