@@ -10,6 +10,7 @@
 
 namespace Lunetics\TimezoneBundle\EventListener;
 
+use Lunetics\TimezoneBundle\Event\FilterTimezoneEvent;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
@@ -20,7 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 use Lunetics\TimezoneBundle\TimezoneGuesser\TimezoneGuesserManager;
-use Lunetics\TimezoneBundle\Event\FilterTimezoneEvent;
 use Lunetics\TimezoneBundle\TimezoneBundleEvents;
 use Lunetics\TimezoneBundle\Validator\Timezone;
 
@@ -44,10 +44,10 @@ class TimezoneListener implements EventSubscriberInterface
      * @param Session                $session   Session
      * @param string                 $sessionVar
      * @param TimezoneGuesserManager $manager   The Timezone Manager
-     * @param Validator              $validator Timzone Validator
-     * @param LoggerInterface        $logger    Logger
+     * @param null|Validator         $validator Timzone Validator
+     * @param null|LoggerInterface   $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, Validator $validator, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, Validator $validator = null, LoggerInterface $logger = null)
     {
         $this->session = $session;
         $this->manager = $manager;
@@ -75,22 +75,24 @@ class TimezoneListener implements EventSubscriberInterface
         if (!$this->session->has($this->sessionTimezoneString)) {
             $this->timezone = $this->manager->runTimezoneGuessing($request);
 
-            $errors = $this->validator->validateValue($this->timezone, new Timezone());
+            if (null !== ($this->validator)) {
+                $errors = $this->validator->validateValue($this->timezone, new Timezone());
 
-            if ($errors->count() > 0) {
-                if (null !== $this->logger) {
-                    $iterator = $errors->getIterator();
-                    while ($iterator->valid()) {
-                        $this->logger->notice($iterator->current());
-                        $iterator->next();
+                if ($errors->count() > 0) {
+                    if (null !== $this->logger) {
+                        $iterator = $errors->getIterator();
+                        while ($iterator->valid()) {
+                            $this->logger->notice($iterator->current());
+                            $iterator->next();
+                        }
                     }
-                }
 
-                return;
+                    return;
+                }
             }
 
-            $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
-            $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
+            $timezoneSwitchEvent = new FilterTimezoneEvent($this->timezone);
+            $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $timezoneSwitchEvent);
         }
     }
 

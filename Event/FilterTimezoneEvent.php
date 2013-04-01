@@ -15,13 +15,8 @@ use Symfony\Component\EventDispatcher\Event;
 /**
  * Filter for the timezone event
  */
-class FilterTimezoneEvent extends Event
+class FilterTimezoneEvent extends TimezoneEvent
 {
-    /**
-     * @var string
-     */
-    protected $timezone;
-
     /**
      * Constructor
      *
@@ -31,20 +26,6 @@ class FilterTimezoneEvent extends Event
      */
     public function __construct($timezone)
     {
-        if (!is_string($timezone) || null == $timezone || '' == $timezone) {
-            throw new \InvalidArgumentException(sprintf('Wrong type, expected \'string\' got \'%s\'', gettype($timezone)));
-        }
-
-        $this->timezone = $timezone;
-    }
-
-    /**
-     * Returns the timezone string
-     *
-     * @return string
-     */
-    public function getTimezone()
-    {
-        return $this->timezone;
+        $this->setTimezone($timezone);
     }
 }
