@@ -52,6 +52,18 @@ class TimezoneGuesserManager
     }
 
     /**
+     * Removes a guesser from this manager
+     *
+     * @param string $alias
+     *
+     * @return bool
+     */
+    public function removeGuesser($alias)
+    {
+        unset($this->guessers[$alias]);
+    }
+
+    /**
      * Returns the guesser
      *
      * @param string $alias
