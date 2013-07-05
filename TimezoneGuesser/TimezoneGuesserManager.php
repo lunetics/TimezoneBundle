@@ -10,7 +10,6 @@
 
 namespace Lunetics\TimezoneBundle\TimezoneGuesser;
 
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
