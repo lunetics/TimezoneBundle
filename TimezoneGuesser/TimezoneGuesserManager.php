@@ -85,7 +85,15 @@ class TimezoneGuesserManager
             }
             $this->logEvent('Timezone %s Guessing Service Loaded', ucfirst($guesser));
             $guesserService = $this->getGuesser($guesser);
-            if (false !== $guesserService->guessTimezone($request)) {
+
+            $guessed = false;
+            try {
+                $guessed = $guesserService->guessTimezone($request);
+            } catch (\Exception $e) {
+                // Some guessers like the GeoTimezoneGuesser may throw an exception. Log the problem without crashing.
+                $this->logEvent($e->getMessage());
+            }
+            if (false !== $guessed) {
                 $timezone = $guesserService->getIdentifiedTimezone();
                 $this->logEvent('Timezone has been identified : ( %s )', $timezone);
 
