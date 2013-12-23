@@ -40,8 +40,11 @@ class LuneticsTimezoneExtension extends Extension
             if (!$extGeoip) {
                 throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException('Cannot load the "locale" guesser without the pecl-geoip extension.');
             }
+            $geoipInfo = geoip_db_get_all_info();
             if (!geoip_db_avail(GEOIP_CITY_EDITION_REV0) OR !geoip_db_avail(GEOIP_CITY_EDITION_REV1)) {
-                throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException('You need to install the GeoCityLite.dat file.');
+                $error = 'Could not find "'.$geoipInfo[GEOIP_CITY_EDITION_REV0]['description'].'" ('.$geoipInfo[GEOIP_CITY_EDITION_REV0]['filename'].') or ';
+                $error .= '"'.$geoipInfo[GEOIP_CITY_EDITION_REV1]['description'].'" ('.$geoipInfo[GEOIP_CITY_EDITION_REV1]['filename'].')';
+                throw new \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException($error);
             }
         }
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
