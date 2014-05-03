@@ -78,6 +78,7 @@ class AcmeTimezoneGuesser implements TimezoneGuesserInterface
         return $this->identifiedTimezone;
     }
 }
+```
 
 4. Add the guesser to the config
 --------------------------------
