@@ -87,10 +87,12 @@ class TimezoneListener implements EventSubscriberInterface
 
                 return;
             }
-
-            $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
-            $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
+        } else {
+            $this->timezone = $this->session->get($this->sessionTimezoneString);
+            $foo = $event->getDispatcher()->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));
         }
+        $localeSwitchEvent = new FilterTimezoneEvent($this->timezone, $request);
+        $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
     }
 
     /**
@@ -98,11 +100,19 @@ class TimezoneListener implements EventSubscriberInterface
      *
      * @param FilterTimezoneEvent $event
      */
-    public function onTimezoneChange(FilterTimezoneEvent $event)
+    public function setSessionAttribute(FilterTimezoneEvent $event)
     {
         $timezone = $event->getTimezone();
         $this->session->set($this->sessionTimezoneString, $timezone);
         $this->logger->info(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $timezone, $this->sessionTimezoneString));
+    }
+
+    public function setRequestAttribute(FilterTimezoneEvent $event)
+    {
+        $timezone = $event->getTimezone();
+        $request = $event->getRequest();
+        $request->attributes->set('_timezone', $timezone);
+        $this->logger->info(sprintf('Setting [ %s ] as default timezone into request attribute var [ _timezone ]', $timezone));
     }
 
     /**
@@ -112,7 +122,10 @@ class TimezoneListener implements EventSubscriberInterface
     {
         return array(
              KernelEvents::REQUEST => array('onKernelRequest'),
-             TimezoneBundleEvents::TIMEZONE_CHANGE => array('onTimezoneChange')
+             TimezoneBundleEvents::TIMEZONE_CHANGE => array(
+                 array('setSessionAttribute'),
+                 array('setRequestAttribute')
+             )
         );
     }
 }
