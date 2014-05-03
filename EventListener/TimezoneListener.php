@@ -53,7 +53,7 @@ class TimezoneListener implements EventSubscriberInterface
         $this->session = $session;
         $this->manager = $manager;
         $this->validator = $validator;
-        $this->logger = $logger ? new NullLogger();
+        $this->logger = $logger ? : new NullLogger();
         $this->sessionTimezoneString = $sessionVar;
     }
 

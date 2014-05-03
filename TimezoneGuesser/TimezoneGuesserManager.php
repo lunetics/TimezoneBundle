@@ -10,6 +10,7 @@
 
 namespace Lunetics\TimezoneBundle\TimezoneGuesser;
 
+use Lunetics\TimezoneBundle\Exception\TimezoneGuesserException;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -90,7 +91,7 @@ class TimezoneGuesserManager
             $guessed = false;
             try {
                 $guessed = $guesserService->guessTimezone($request);
-            } catch (\Exception $e) {
+            } catch (TimezoneGuesserException $e) {
                 // Some guessers like the GeoTimezoneGuesser may throw an exception. Log the problem without crashing.
                 $this->logger->error($e->getMessage());
             }
