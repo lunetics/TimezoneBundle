@@ -10,6 +10,7 @@
 
 namespace Lunetics\TimezoneBundle\TimezoneGuesser;
 
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,7 +37,7 @@ class TimezoneGuesserManager
     public function __construct(array $order, LoggerInterface $logger = null)
     {
         $this->order = $order;
-        $this->logger = $logger;
+        $this->logger = $logger ? : new NullLogger();
     }
 
     /**
@@ -83,7 +84,7 @@ class TimezoneGuesserManager
             if (null === $this->getGuesser($guesser)) {
                 throw new \InvalidArgumentException(sprintf('Service "%s" does not exist.', $guesser));
             }
-            $this->logEvent('Timezone %s Guessing Service Loaded', ucfirst($guesser));
+            $this->logger->debug(sprintf('Timezone %s Guessing Service Loaded', ucfirst($guesser)));
             $guesserService = $this->getGuesser($guesser);
 
             $guessed = false;
@@ -91,30 +92,17 @@ class TimezoneGuesserManager
                 $guessed = $guesserService->guessTimezone($request);
             } catch (\Exception $e) {
                 // Some guessers like the GeoTimezoneGuesser may throw an exception. Log the problem without crashing.
-                $this->logEvent($e->getMessage());
+                $this->logger->error($e->getMessage());
             }
             if (false !== $guessed) {
                 $timezone = $guesserService->getIdentifiedTimezone();
-                $this->logEvent('Timezone has been identified : ( %s )', $timezone);
+                $this->logger->info(sprintf('Timezone has been identified by the %s Guessing Service: ( %s )', ucfirst($guesser), $timezone));
 
                 return $timezone;
             }
-            $this->logEvent('Timezone has not been identified by the %s Guessing Service', ucfirst($guesser));
+            $this->logger->debug(sprintf('Timezone has not been identified by the %s Guessing Service', ucfirst($guesser)));
         }
 
         return false;
-    }
-
-    /**
-     * Log detection events
-     *
-     * @param string $logMessage
-     * @param string $parameters
-     */
-    private function logEvent($logMessage, $parameters = null)
-    {
-        if (null !== $this->logger) {
-            $this->logger->info(sprintf($logMessage, $parameters));
-        }
     }
 }

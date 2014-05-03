@@ -14,9 +14,11 @@
         <service id="lunetics_timezone.geo_guesser" class="%lunetics_timezone.service.geo.class%">
             <tag name="lunetics_timezone.guesser" alias="geo" />
         </service>
+
         <service id="lunetics_timezone.locale_guesser" class="%lunetics_timezone.service.locale.class%">
             <tag name="lunetics_timezone.guesser" alias="locale" />
         </service>
+
         <service id="lunetics_timezone.locale_mapper_guesser" class="%lunetics_timezone.service.locale_mapper.class%">
             <argument>%lunetics_timezone.service.locale_mapper.data%</argument>
             <tag name="lunetics_timezone.guesser" alias="locale_mapper" />
@@ -24,7 +26,8 @@
 
         <service id="lunetics_timezone.guesser_manager" class="%lunetics_timezone.guesser_manager.class%">
             <argument>%lunetics_timezone.guesser.order%</argument>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="logger" on-invalid="null"/>
+            <tag name="monolog.logger" channel="lunetics_timezone" />
         </service>
 
         <service id="lunetics_timezone.locale_listener" class="%lunetics_timezone.timezone_listener.class%">
@@ -32,7 +35,8 @@
             <argument>%lunetics_timezone.session_var%</argument>
             <argument type="service" id="lunetics_timezone.guesser_manager" />
             <argument type="service" id="validator"/>
-            <argument type="service" id="logger"/>
+            <argument type="service" id="logger" on-invalid="null"/>
+            <tag name="monolog.logger" channel="lunetics_timezone" />
             <tag name="kernel.event_subscriber"/>
         </service>
 

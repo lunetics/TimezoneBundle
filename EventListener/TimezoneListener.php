@@ -66,7 +66,7 @@ class TimezoneListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         if ($event->getRequestType() !== HttpKernelInterface::MASTER_REQUEST  && !$request->isXmlHttpRequest()) {
-            $this->logEvent('Request is not a "MASTER_REQUEST" : SKIPPING...');
+            $this->logger->info('Request is not a "MASTER_REQUEST" : SKIPPING...');
 
             return;
         }
@@ -102,20 +102,7 @@ class TimezoneListener implements EventSubscriberInterface
     {
         $timezone = $event->getTimezone();
         $this->session->set($this->sessionTimezoneString, $timezone);
-        $this->logEvent(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $timezone, $this->sessionTimezoneString));
-    }
-
-    /**
-     * Log detection events
-     *
-     * @param string $logMessage
-     * @param array  $parameters
-     */
-    private function logEvent($logMessage, $parameters = null)
-    {
-        if (null !== $this->logger) {
-            $this->logger->info(sprintf($logMessage, $parameters));
-        }
+        $this->logger->info(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $timezone, $this->sessionTimezoneString));
     }
 
     /**
