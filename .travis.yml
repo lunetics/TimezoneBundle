@@ -18,6 +18,7 @@ env:
   - SYMFONY_VERSION=dev-master
 
 cache:
+  apt: true
   directories:
     - $COMPOSER_CACHE_DIR
 
