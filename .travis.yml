@@ -4,16 +4,22 @@ php:
   - 5.3
   - 5.4
   - 5.5
+  - hhvm
 
 matrix:
   allow_failures:
-    - php: 5.5
+    - php: hhvm
 
 env:
-  - SYMFONY_VERSION=2.1.*
   - SYMFONY_VERSION=2.2.*
   - SYMFONY_VERSION=2.3.*
+  - SYMFONY_VERSION=2.4.*
+  - SYMFONY_VERSION=2.5.*@dev
   - SYMFONY_VERSION=dev-master
+
+cache:
+  directories:
+    - $COMPOSER_CACHE_DIR
 
 before_script:
   - sudo apt-get install geoip-bin
@@ -26,10 +32,14 @@ before_script:
   - sudo mv GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
   - pecl install geoip
   - composer self-update
-  - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update
+  - composer require symfony/framework-bundle:${SYMFONY_VERSION} --dev --no-update
   - composer install --dev --prefer-source
 
-script: phpunit --coverage-text
+script: phpunit --coverage-text --coverage-clover=coverage.clover
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 notifications:
   email: mb@lunetics.com
