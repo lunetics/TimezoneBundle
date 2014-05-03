@@ -10,6 +10,7 @@
 
 namespace Lunetics\TimezoneBundle\EventListener;
 
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
@@ -22,6 +23,7 @@ use Lunetics\TimezoneBundle\TimezoneGuesser\TimezoneGuesserManager;
 use Lunetics\TimezoneBundle\Event\FilterTimezoneEvent;
 use Lunetics\TimezoneBundle\TimezoneBundleEvents;
 use Lunetics\TimezoneBundle\Validator\Timezone;
+use Symfony\Component\Validator\ValidatorInterface;
 
 /**
  * Listener for Timezone detection
@@ -43,15 +45,15 @@ class TimezoneListener implements EventSubscriberInterface
      * @param Session                $session   Session
      * @param string                 $sessionVar
      * @param TimezoneGuesserManager $manager   The Timezone Manager
-     * @param Validator              $validator Timzone Validator
+     * @param ValidatorInterace      $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, Validator $validator, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, ValidatorInterface $validator, LoggerInterface $logger = null)
     {
         $this->session = $session;
         $this->manager = $manager;
         $this->validator = $validator;
-        $this->logger = $logger;
+        $this->logger = $logger ? new NullLogger();
         $this->sessionTimezoneString = $sessionVar;
     }
 
@@ -77,12 +79,10 @@ class TimezoneListener implements EventSubscriberInterface
             $errors = $this->validator->validateValue($this->timezone, new Timezone());
 
             if ($errors->count() > 0) {
-                if (null !== $this->logger) {
-                    $iterator = $errors->getIterator();
-                    while ($iterator->valid()) {
-                        $this->logger->notice($iterator->current());
-                        $iterator->next();
-                    }
+                $iterator = $errors->getIterator();
+                while ($iterator->valid()) {
+                    $this->logger->notice($iterator->current());
+                    $iterator->next();
                 }
 
                 return;
