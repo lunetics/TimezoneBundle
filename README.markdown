@@ -3,6 +3,12 @@ TimezoneBundle
 The TimezoneBundle adds support for guessing a appropiate Timezone serverside in your Symfony 2.1 application.
 
 [![Build Status](https://secure.travis-ci.org/lunetics/TimezoneBundle.png?branch=master)](http://travis-ci.org/lunetics/TimezoneBundle)
+[![Latest Stable Version](https://poser.pugx.org/lunetics/timezone-bundle/v/stable.png)](https://packagist.org/packages/lunetics/timezone-bundle)
+[![Latest Unstable Version](https://poser.pugx.org/lunetics/timezone-bundle/v/unstable.png)](https://packagist.org/packages/lunetics/timezone-bundle)
+
+
+[![Total Downloads](https://poser.pugx.org/lunetics/timezone-bundle/downloads.png)](https://packagist.org/packages/lunetics/timezone-bundle)
+[![License](https://poser.pugx.org/lunetics/timezone-bundle/license.png)](https://packagist.org/packages/lunetics/timezone-bundle)
 
 About
 -----
