@@ -10,6 +10,7 @@
 
 namespace Lunetics\TimezoneBundle\EventListener;
 
+use Lunetics\TimezoneBundle\TimezoneProvider\TimezoneProvider;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -35,6 +36,7 @@ class TimezoneListener implements EventSubscriberInterface
     protected $session;
     protected $manager;
     protected $validator;
+    protected $timezoneProvider;
     protected $logger;
     protected $timezone;
     protected $sessionTimezoneString;
@@ -48,11 +50,12 @@ class TimezoneListener implements EventSubscriberInterface
      * @param ValidatorInterace      $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, ValidatorInterface $validator, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, ValidatorInterface $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
     {
         $this->session = $session;
         $this->manager = $manager;
         $this->validator = $validator;
+        $this->timezoneProvider = $provider;
         $this->logger = $logger ? : new NullLogger();
         $this->sessionTimezoneString = $sessionVar;
     }
@@ -107,14 +110,10 @@ class TimezoneListener implements EventSubscriberInterface
         $this->logger->info(sprintf('Setting [ %s ] as default timezone into session var [ %s ]', $timezone, $this->sessionTimezoneString));
     }
 
-    public function setRequestAttribute(FilterTimezoneEvent $event)
+    public function setTimezoneProviderValue(FilterTimezoneEvent $event)
     {
-        $timezone = $event->getTimezone();
-        $request = $event->getRequest();
-        $request->attributes->set('_timezone', $timezone);
-        $this->logger->info(sprintf('Setting [ %s ] as default timezone into request attribute var [ _timezone ]', $timezone));
+        $this->timezoneProvider->setTimezone($event->getTimezone());
     }
-
     /**
      * {@inheritDoc}
      */
@@ -124,7 +123,7 @@ class TimezoneListener implements EventSubscriberInterface
              KernelEvents::REQUEST => array('onKernelRequest'),
              TimezoneBundleEvents::TIMEZONE_CHANGE => array(
                  array('setSessionAttribute'),
-                 array('setRequestAttribute')
+                 array('setTimezoneProviderValue')
              )
         );
     }
