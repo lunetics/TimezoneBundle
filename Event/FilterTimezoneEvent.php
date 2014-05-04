@@ -11,7 +11,6 @@
 namespace Lunetics\TimezoneBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Filter for the timezone event
