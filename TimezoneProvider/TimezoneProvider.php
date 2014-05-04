@@ -2,7 +2,6 @@
 
 namespace Lunetics\TimezoneBundle\TimezoneProvider;
 
-use Faker\Provider\DateTime;
 use Lunetics\TimezoneBundle\Exception\TimezoneException;
 use Lunetics\TimezoneBundle\Validator\Timezone;
 use Psr\Log\LoggerInterface;

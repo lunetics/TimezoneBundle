@@ -92,9 +92,9 @@ class TimezoneListener implements EventSubscriberInterface
             }
         } else {
             $this->timezone = $this->session->get($this->sessionTimezoneString);
-            $foo = $event->getDispatcher()->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));
+            $event->getDispatcher()->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));
         }
-        $localeSwitchEvent = new FilterTimezoneEvent($this->timezone, $request);
+        $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
         $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
     }
 
