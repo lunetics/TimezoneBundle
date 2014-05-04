@@ -38,7 +38,7 @@ class TimezoneProvider
     {
         $this->validator = $validator;
         $this->logger = $logger ? : new NullLogger();
-        $this->setTimezone($defaultTimezone);
+        $this->timezone = $defaultTimezone;
     }
 
     /**

@@ -26,6 +26,7 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
+        $availableTimezones = \DateTimeZone::listIdentifiers();
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('lunetics_timezone');
 
@@ -36,6 +37,10 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('default_timezone')
                     ->defaultValue('UTC')
+                    ->validate()
+                    ->ifNotInArray($availableTimezones)
+                        ->thenInvalid('Invalid timezone "%s"')
+                    ->end()
                 ->end()
                 ->arrayNode('guesser')
                     ->children()

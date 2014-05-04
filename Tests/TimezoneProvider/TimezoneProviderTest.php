@@ -40,14 +40,6 @@ class TimezoneProvidertTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Europe/Berlin', $timezoneProvider->getTimezone());
     }
 
-    /**
-     * @expectedException Lunetics\TimezoneBundle\Exception\TimezoneException
-     */
-    public function testInvalidTimezone()
-    {
-        $timezoneProvider = new TimezoneProvider($this->getValidatorMock(true));
-    }
-
     public function testGetTimezone()
     {
         $timezoneProvider = new TimezoneProvider($this->getValidatorMock());
@@ -64,6 +56,15 @@ class TimezoneProvidertTest extends \PHPUnit_Framework_TestCase
         $return = $timezoneProvider->setTimezone('Europe/Berlin');
         $this->assertInstanceOf(get_class($timezoneProvider), $return);
         $this->assertEquals('Europe/Berlin', $timezoneProvider->getTimezone());
+    }
+
+    /**
+     * @expectedException Lunetics\TimezoneBundle\Exception\TimezoneException
+     */
+    public function testSetTimezoneInvalid()
+    {
+        $timezoneProvider = new TimezoneProvider($this->getValidatorMock(true));
+        $timezoneProvider->setTimezone('foobar');
     }
 
     public function testGetTimezoneDateTimeObject()
