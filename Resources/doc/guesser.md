@@ -9,12 +9,12 @@ There are currently 3 timezone guessers available:
 
 geo guesser
 -----------
-The geo guesser utilizes the **pecl-geoip** extension and (MaxMinds geoip Database)[http://www.maxmind.com/]
+The geo guesser utilizes the **pecl-geoip** extension and [MaxMinds geoip Database](http://www.maxmind.com/)
 It tries to locate the client and set the appropiate timezone.
 
 locale_mapper guesser
 ---------------------
-The locale_mapper guesser tries to identify the timezone based on the locale mapping provided in the (LocaleMapper.yml)[https://github.com/lunetics/TimezoneBundle/blob/master/Resources/config/LocaleMapper.yml).
+The locale_mapper guesser tries to identify the timezone based on the locale mapping provided in the [LocaleMapper.yml](https://github.com/lunetics/TimezoneBundle/blob/master/Resources/config/LocaleMapper.yml).
 
 locale guesser
 --------------
