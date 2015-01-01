@@ -96,7 +96,7 @@ class TimezoneValidatorTest extends \PHPUnit_Framework_TestCase
      */
     private function getContext()
     {
-        return $this->getMockBuilder('Symfony\Component\Validator\ExecutionContext')->disableOriginalConstructor()->getMock();
+        return $this->getMockBuilder('Symfony\Component\Validator\Context\ExecutionContext')->disableOriginalConstructor()->getMock();
     }
 
     /**
