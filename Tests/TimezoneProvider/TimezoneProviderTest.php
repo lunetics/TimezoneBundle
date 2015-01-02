@@ -25,6 +25,10 @@ use Symfony\Component\Validator\ConstraintViolationList;
  */
 class TimezoneProvidertTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        \PHPUnit_Framework_Error_Deprecated::$enabled = FALSE;
+    }
 
     public function testDefaultTimezone()
     {
