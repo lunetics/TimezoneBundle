@@ -46,11 +46,12 @@ class TimezoneListener implements EventSubscriberInterface
      *
      * @param Session                $session   Session
      * @param string                 $sessionVar
+     * @param string                 $defaultTimezone
      * @param TimezoneGuesserManager $manager   The Timezone Manager
      * @param ValidatorInterace      $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, TimezoneGuesserManager $manager, ValidatorInterface $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, $defaultTimezone = 'UTC', TimezoneGuesserManager $manager, ValidatorInterface $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
     {
         $this->session = $session;
         $this->manager = $manager;
@@ -58,6 +59,7 @@ class TimezoneListener implements EventSubscriberInterface
         $this->timezoneProvider = $provider;
         $this->logger = $logger ? : new NullLogger();
         $this->sessionTimezoneString = $sessionVar;
+        $this->defaultTimezone = $defaultTimezone;
     }
 
     /**
@@ -77,19 +79,23 @@ class TimezoneListener implements EventSubscriberInterface
         }
 
         if (!$this->session->has($this->sessionTimezoneString)) {
-            $this->timezone = $this->manager->runTimezoneGuessing($request);
 
-            $errors = $this->validator->validateValue($this->timezone, new Timezone());
+            if ($this->timezone = $this->manager->runTimezoneGuessing($request)) {
+                $errors = $this->validator->validateValue($this->timezone, new Timezone());
 
-            if ($errors->count() > 0) {
-                $iterator = $errors->getIterator();
-                while ($iterator->valid()) {
-                    $this->logger->notice($iterator->current());
-                    $iterator->next();
+                if ($errors->count() > 0) {
+                    $iterator = $errors->getIterator();
+                    while ($iterator->valid()) {
+                        $this->logger->notice($iterator->current());
+                        $iterator->next();
+                    }
+
+                    return;
                 }
-
-                return;
+            } else {
+                $this->timezone = $this->defaultTimezone;
             }
+
         } else {
             $this->timezone = $this->session->get($this->sessionTimezoneString);
             $event->getDispatcher()->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));

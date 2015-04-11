@@ -41,6 +41,7 @@
         <service id="lunetics_timezone.locale_listener" class="%lunetics_timezone.timezone_listener.class%">
             <argument type="service" id="session"/>
             <argument>%lunetics_timezone.session_var%</argument>
+            <argument>%lunetics_timezone.default_timezone%</argument>
             <argument type="service" id="lunetics_timezone.guesser_manager" />
             <argument type="service" id="validator"/>
             <argument type="service" id="lunetics_timezone.provider" />
