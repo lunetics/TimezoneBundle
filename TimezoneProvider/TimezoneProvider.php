@@ -6,7 +6,7 @@ use Lunetics\TimezoneBundle\Exception\TimezoneException;
 use Lunetics\TimezoneBundle\Validator\Timezone;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\Validator\ValidatorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Class TimezoneProvider
