@@ -24,7 +24,8 @@ use Lunetics\TimezoneBundle\TimezoneGuesser\TimezoneGuesserManager;
 use Lunetics\TimezoneBundle\Event\FilterTimezoneEvent;
 use Lunetics\TimezoneBundle\TimezoneBundleEvents;
 use Lunetics\TimezoneBundle\Validator\Timezone;
-use Symfony\Component\Validator\ValidatorInterface;
+use Symfony\Component\Validator\ValidatorInterface as LegacyValidatorInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Listener for Timezone detection
@@ -51,8 +52,11 @@ class TimezoneListener implements EventSubscriberInterface
      * @param ValidatorInterace      $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, $defaultTimezone = 'UTC', TimezoneGuesserManager $manager, ValidatorInterface $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, $defaultTimezone = 'UTC', TimezoneGuesserManager $manager, $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
     {
+        if (!$validator instanceof ValidatorInterface && !$validator instanceof LegacyValidatorInterface) {
+            throw new \InvalidArgumentException('MetadataValidator accepts either the new or the old ValidatorInterface, '.get_class($validator).' was injected instead.');
+        }
         $this->session = $session;
         $this->manager = $manager;
         $this->validator = $validator;
@@ -81,7 +85,7 @@ class TimezoneListener implements EventSubscriberInterface
         if (!$this->session->has($this->sessionTimezoneString)) {
 
             if ($this->timezone = $this->manager->runTimezoneGuessing($request)) {
-                $errors = $this->validator->validateValue($this->timezone, new Timezone());
+                $errors = $this->validator->validate($this->timezone, new Timezone());
 
                 if ($errors->count() > 0) {
                     $iterator = $errors->getIterator();
