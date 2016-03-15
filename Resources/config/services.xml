@@ -46,6 +46,7 @@
             <argument type="service" id="validator"/>
             <argument type="service" id="lunetics_timezone.provider" />
             <argument type="service" id="logger" on-invalid="null"/>
+             <argument type="service" id="event_dispatcher"/>
             <tag name="monolog.logger" channel="lunetics_timezone" />
             <tag name="kernel.event_subscriber"/>
         </service>

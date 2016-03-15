@@ -13,6 +13,7 @@ namespace Lunetics\TimezoneBundle\EventListener;
 use Lunetics\TimezoneBundle\TimezoneProvider\TimezoneProvider;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -41,6 +42,7 @@ class TimezoneListener implements EventSubscriberInterface
     protected $logger;
     protected $timezone;
     protected $sessionTimezoneString;
+    protected $dispatcher;
 
     /**
      * Construct the TimezoneListener
@@ -52,7 +54,7 @@ class TimezoneListener implements EventSubscriberInterface
      * @param ValidatorInterace      $validator Timzone Validator
      * @param LoggerInterface        $logger    Logger
      */
-    public function __construct(Session $session, $sessionVar, $defaultTimezone = 'UTC', TimezoneGuesserManager $manager, $validator, TimezoneProvider $provider, LoggerInterface $logger = null)
+    public function __construct(Session $session, $sessionVar, $defaultTimezone = 'UTC', TimezoneGuesserManager $manager, $validator, TimezoneProvider $provider, LoggerInterface $logger = null, EventDispatcherInterface $dispatcher)
     {
         if (!$validator instanceof ValidatorInterface && !$validator instanceof LegacyValidatorInterface) {
             throw new \InvalidArgumentException('MetadataValidator accepts either the new or the old ValidatorInterface, '.get_class($validator).' was injected instead.');
@@ -64,6 +66,7 @@ class TimezoneListener implements EventSubscriberInterface
         $this->logger = $logger ? : new NullLogger();
         $this->sessionTimezoneString = $sessionVar;
         $this->defaultTimezone = $defaultTimezone;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -72,6 +75,7 @@ class TimezoneListener implements EventSubscriberInterface
      * Call the TimezoneGuesserManager to guess the Timezone by the activated guessers
      *
      * @param GetResponseEvent $event
+     * @param EventDispatcherInterface $dispatcher
      */
     public function onKernelRequest(GetResponseEvent $event)
     {
@@ -102,10 +106,10 @@ class TimezoneListener implements EventSubscriberInterface
 
         } else {
             $this->timezone = $this->session->get($this->sessionTimezoneString);
-            $event->getDispatcher()->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));
+            $this->dispatcher->removeListener(TimezoneBundleEvents::TIMEZONE_CHANGE, array($this,'setSessionAttribute'));
         }
         $localeSwitchEvent = new FilterTimezoneEvent($this->timezone);
-        $event->getDispatcher()->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
+        $this->dispatcher->dispatch(TimezoneBundleEvents::TIMEZONE_CHANGE, $localeSwitchEvent);
     }
 
     /**
