@@ -1,0 +1,109 @@
+name: Tests
+
+on:
+    push:
+    pull_request:
+
+permissions:
+    contents: read
+
+jobs:
+    minimal-dependencies:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  coverage: none
+                  tools: composer:v2
+            - run: composer validate --strict --no-check-publish
+            - run: composer update --no-dev --prefer-dist --no-interaction --no-progress
+            - run: composer audit --locked
+            - name: Smoke-test no-dev package
+              run: php scripts/no-dev-smoke.php
+
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - php: '8.2'
+                      symfony: '6.4.*'
+                    - php: '8.3'
+                      symfony: '6.4.*'
+                    - php: '8.2'
+                      symfony: '7.4.*'
+                    - php: '8.3'
+                      symfony: '7.4.*'
+                    - php: '8.4'
+                      symfony: '8.0.*'
+                    - php: '8.4'
+                      symfony: '8.1.*'
+                    - php: '8.5'
+                      symfony: '8.1.*'
+
+        name: PHP ${{ matrix.php }} / Symfony ${{ matrix.symfony }}
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+                  coverage: none
+                  tools: composer:v2
+
+            - run: composer validate --strict --no-check-publish
+
+            - name: Select Symfony runtime versions
+              run: >-
+                  composer require --no-update
+                  symfony/config:${{ matrix.symfony }}
+                  symfony/dependency-injection:${{ matrix.symfony }}
+                  symfony/http-foundation:${{ matrix.symfony }}
+                  symfony/http-kernel:${{ matrix.symfony }}
+
+            - name: Select Symfony development versions
+              run: >-
+                  composer require --dev --no-update
+                  symfony/asset-mapper:${{ matrix.symfony }}
+                  symfony/console:${{ matrix.symfony }}
+                  symfony/event-dispatcher:${{ matrix.symfony }}
+                  symfony/form:${{ matrix.symfony }}
+                  symfony/framework-bundle:${{ matrix.symfony }}
+                  symfony/messenger:${{ matrix.symfony }}
+                  symfony/routing:${{ matrix.symfony }}
+                  symfony/security-bundle:${{ matrix.symfony }}
+                  symfony/security-core:${{ matrix.symfony }}
+                  symfony/security-csrf:${{ matrix.symfony }}
+                  symfony/serializer:${{ matrix.symfony }}
+                  symfony/twig-bundle:${{ matrix.symfony }}
+                  symfony/web-profiler-bundle:${{ matrix.symfony }}
+
+            - run: composer update --prefer-dist --no-interaction --no-progress
+            - run: composer audit --locked
+            - run: composer check
+
+    prefer-lowest:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  coverage: none
+                  tools: composer:v2
+            - run: composer validate --strict --no-check-publish
+            - run: composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+            - run: composer check
+
+    javascript:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: '24'
+            - run: npm test
