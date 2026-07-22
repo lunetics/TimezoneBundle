@@ -16,11 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(PhpCountryTimezoneSource::class)]
 final class LocaleTimezoneResolverTest extends TestCase
 {
-    public function testResolvesHyphenatedLocaleWithIncompleteIntlPolyfill(): void
+    public function testResolvesHyphenatedLocaleWithOrWithoutIntl(): void
     {
-        self::assertFalse(extension_loaded('intl'));
-        self::assertTrue(class_exists(\Locale::class));
-
         $source = new RecordingCountryTimezoneSource([TimezoneId::fromString('Europe/Berlin')]);
         $request = Request::create('/');
         $request->setLocale('de-DE');
