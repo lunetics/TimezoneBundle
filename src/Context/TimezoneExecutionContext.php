@@ -24,7 +24,11 @@ final class TimezoneExecutionContext implements TimezoneExecutionContextInterfac
 
     public function current(): ?TimezoneId
     {
-        return $this->stack[array_key_last($this->stack)] ?? null;
+        if ([] === $this->stack) {
+            return null;
+        }
+
+        return $this->stack[count($this->stack) - 1];
     }
 
     public function reset(): void

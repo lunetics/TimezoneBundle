@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Lunetics\TimezoneBundle\Tests\Integration;
 
+use DateTimeImmutable;
 use Lunetics\TimezoneBundle\Bridge\Messenger\DispatchTimezoneMiddleware;
 use Lunetics\TimezoneBundle\Bridge\Messenger\WorkerTimezoneMiddleware;
 use Lunetics\TimezoneBundle\Bridge\WebProfiler\TimezoneDataCollector;
@@ -21,7 +22,6 @@ use Symfony\Bundle\SecurityBundle\SecurityBundle;
 use Symfony\Bundle\TwigBundle\TwigBundle;
 use Symfony\Bundle\WebProfilerBundle\WebProfilerBundle;
 use Symfony\Component\AssetMapper\AssetMapperInterface;
-use Symfony\Component\Clock\Clock;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -84,7 +84,7 @@ final class BundleKernelSmokeTest extends TestCase
 
         $clock = $container->get('test.clock');
         self::assertNotInstanceOf(SystemClock::class, $clock);
-        self::assertInstanceOf(Clock::class, $clock);
+        self::assertInstanceOf(BundleSmokeApplicationClock::class, $clock);
         self::assertSame($clock, $container->get('test.timezone_clock'));
 
         $router = $container->get('router');
@@ -196,6 +196,14 @@ final class BundleKernelSmokeTest extends TestCase
     }
 }
 
+final class BundleSmokeApplicationClock implements ClockInterface
+{
+    public function now(): DateTimeImmutable
+    {
+        return new DateTimeImmutable('2024-01-01T00:00:00+00:00');
+    }
+}
+
 final class BundleSmokeKernel extends Kernel
 {
     use MicroKernelTrait;
@@ -261,6 +269,8 @@ final class BundleSmokeKernel extends Kernel
             'integrations' => ['twig' => true, 'form' => true, 'messenger' => true, 'profiler' => true],
         ]);
         $services = $container->services();
+        $services->set(BundleSmokeApplicationClock::class);
+        $services->alias(ClockInterface::class, BundleSmokeApplicationClock::class);
         $services->alias('test.twig', 'twig')->public();
         $services->alias('test.asset_mapper', 'asset_mapper')->public();
         $services->alias('test.timezone_resolver_chain', TimezoneResolverChain::class)->public();
