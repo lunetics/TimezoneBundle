@@ -85,7 +85,7 @@ lunetics_timezone:
 
 Configuration is strict at container-build time. Unknown keys under `integrations` are rejected. The cookie name must be a valid cookie identifier, and configured MaxMind `database`/`reader` identifiers must be non-blank; invalid or blank values fail while the container is built rather than at first use.
 
-Cookie storage requires `cookie.secret`. Its versioned JSON value is signed; invalid and expired values are ignored and cleared on the response. `same_site: none` requires the explicit setting `secure: true`. A `__Host-` name likewise requires explicit `secure: true`, `path: /`, and `domain: null`; `secure: auto` is not sufficient for either rule.
+Cookie storage requires `cookie.secret`. Its versioned JSON value is signed; invalid and expired values are ignored and cleared on the response. `same_site: none` requires the explicit setting `secure: true`. A `__Host-` name likewise requires explicit `secure: true`, `path: /`, and `domain: null`; a `__Secure-` name requires explicit `secure: true`. `secure: auto` is not sufficient for any of these rules.
 
 ## Browser synchronization and route opt-in
 

@@ -363,6 +363,9 @@ final class LuneticsTimezoneBundle extends AbstractBundle
             if (str_starts_with($cookie['name'], '__Host-') && (true !== $cookie['secure'] || '/' !== $cookie['path'] || null !== $cookie['domain'])) {
                 throw new \InvalidArgumentException('__Host- cookies require secure=true, path=/, and no domain.');
             }
+            if (str_starts_with($cookie['name'], '__Secure-') && true !== $cookie['secure']) {
+                throw new \InvalidArgumentException('__Secure- cookies require secure=true.');
+            }
         }
     }
 

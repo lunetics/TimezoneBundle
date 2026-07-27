@@ -141,6 +141,24 @@ final class CookieTimezoneStorageTest extends TestCase
         new CookieTimezoneStorage('test-only-secret', new MutableClock('2026-01-01T00:00:00Z'), name: 'invalid cookie');
     }
 
+    public function testConstructorRejectsSecurePrefixWithoutExplicitSecureTransport(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('__Secure- cookies require secure transport.');
+        new CookieTimezoneStorage('test-only-secret', new MutableClock('2026-01-01T00:00:00Z'), name: '__Secure-tz');
+    }
+
+    public function testSecurePrefixWithExplicitSecureTransportWritesSecureCookie(): void
+    {
+        $clock = new MutableClock('2026-01-01T00:00:00Z');
+        $storage = new CookieTimezoneStorage('test-only-secret', $clock, name: '__Secure-tz', secure: true);
+        $response = new Response();
+
+        $storage->write(Request::create('https://example.test'), $response, $this->preference('Europe/Berlin', PreferenceSource::BROWSER, $clock->now()));
+
+        self::assertTrue($this->onlyCookie($response)->isSecure());
+    }
+
     private function storage(MutableClock $clock, int $maxAge = 31536000, int $futureSkew = 60, int $maxEncodedSize = 4096): CookieTimezoneStorage
     {
         return new CookieTimezoneStorage('test-only-secret', $clock, maxAge: $maxAge, futureSkew: $futureSkew, maxEncodedSize: $maxEncodedSize);

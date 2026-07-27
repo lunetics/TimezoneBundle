@@ -206,6 +206,15 @@ final class LuneticsTimezoneBundleTest extends TestCase
         $container->compile();
     }
 
+    public function testSecurePrefixedCookieNameRequiresExplicitSecureTrue(): void
+    {
+        $container = $this->container(['persistence' => ['storage' => 'cookie', 'cookie' => ['name' => '__Secure-tz', 'secret' => 'test-only-secret']]]);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('__Secure- cookies require secure=true.');
+        $container->compile();
+    }
+
     public function testBrowserCsrfFailsClearlyWhenOptionalPackageIsMissing(): void
     {
         $container = $this->container(['browser' => ['enabled' => true]]);

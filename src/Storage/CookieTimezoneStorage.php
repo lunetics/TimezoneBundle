@@ -46,6 +46,9 @@ final readonly class CookieTimezoneStorage implements TimezonePreferenceStorageI
         if (str_starts_with($name, '__Host-') && ('/' !== $path || null !== $domain || true !== $secure)) {
             throw new \InvalidArgumentException('__Host- cookies require path /, no domain, and secure transport.');
         }
+        if (str_starts_with($name, '__Secure-') && true !== $secure) {
+            throw new \InvalidArgumentException('__Secure- cookies require secure transport.');
+        }
         $key = hash_hkdf('sha256', $secret, 32, 'lunetics-timezone-cookie-v1');
         $this->key = $key;
     }
@@ -131,7 +134,7 @@ final readonly class CookieTimezoneStorage implements TimezonePreferenceStorageI
     private function resolveSecure(Request $request): bool
     {
         $secure = $this->secure ?? $request->isSecure();
-        if ((Cookie::SAMESITE_NONE === $this->sameSite || str_starts_with($this->name, '__Host-')) && !$secure) {
+        if ((Cookie::SAMESITE_NONE === $this->sameSite || str_starts_with($this->name, '__Host-') || str_starts_with($this->name, '__Secure-')) && !$secure) {
             throw new TimezoneStorageException('The configured timezone cookie requires a secure request.');
         }
         return $secure;
