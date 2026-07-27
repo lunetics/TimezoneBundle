@@ -40,6 +40,9 @@ final class MaxMindTimezoneResolverTest extends TestCase
         yield 'reserved documentation range' => ['192.0.2.1'];
         yield 'ipv6 loopback' => ['::1'];
         yield 'ipv6 link local' => ['fe80::1'];
+        yield 'ipv6 well-known nat64' => ['64:ff9b::808:808'];
+        yield 'ipv6 local-use nat64' => ['64:ff9b:1::1'];
+        yield 'ipv6 6to4' => ['2002:a00:1::1'];
     }
 
     #[DataProvider('nonPublicAddresses')]
