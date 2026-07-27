@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Lunetics\TimezoneBundle\Bridge\WebProfiler;
 
-use Lunetics\TimezoneBundle\Controller\BrowserTimezoneController;
 use Lunetics\TimezoneBundle\EventListener\InvalidPreferenceCleanupListener;
 use Lunetics\TimezoneBundle\Resolution\TimezoneResolutionTrace;
 use Lunetics\TimezoneBundle\Resolver\StoredPreferenceTimezoneResolver;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceRead;
+use Lunetics\TimezoneBundle\Storage\TimezonePreferenceStorageInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
@@ -48,7 +48,7 @@ final class TimezoneDataCollector extends DataCollector
             'attempts' => $attempts,
             'preference_read' => $read instanceof TimezonePreferenceRead,
             'preference_read_status' => $read instanceof TimezonePreferenceRead ? $read->status->value : null,
-            'preference_written' => true === $request->attributes->get(BrowserTimezoneController::PREFERENCE_WRITTEN_ATTRIBUTE),
+            'preference_written' => true === $request->attributes->get(TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE),
             'preference_cleared' => true === $request->attributes->get(InvalidPreferenceCleanupListener::PREFERENCE_CLEARED_ATTRIBUTE),
         ];
     }

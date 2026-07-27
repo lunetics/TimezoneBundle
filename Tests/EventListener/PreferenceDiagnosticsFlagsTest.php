@@ -99,6 +99,71 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
         self::assertSame('Europe/Berlin', $read->preference?->timezone->value());
     }
 
+    public function testApplicationManualSessionWriteSurvivesCleanupAfterInvalidRead(): void
+    {
+        $storage = new SessionTimezoneStorage();
+        $session = new Session(new MockArraySessionStorage());
+        $session->start();
+        $session->set('_lunetics_timezone', ['v' => 1]);
+        $request = Request::create('/settings', 'POST');
+        $request->setSession($session);
+
+        (new StoredPreferenceTimezoneResolver($storage))->resolve($request);
+        $cachedRead = $request->attributes->get(StoredPreferenceTimezoneResolver::READ_ATTRIBUTE);
+        self::assertInstanceOf(TimezonePreferenceRead::class, $cachedRead);
+        self::assertSame(PreferenceReadStatus::INVALID, $cachedRead->status);
+        $response = new Response();
+        $storage->write($request, $response, new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::MANUAL, new \DateTimeImmutable('2026-01-01T00:00:00Z')));
+        (new InvalidPreferenceCleanupListener($storage, PersistenceFailureStrategy::CONTINUE))->onKernelResponse(
+            new ResponseEvent($this->createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response),
+        );
+
+        self::assertFalse($request->attributes->has(InvalidPreferenceCleanupListener::PREFERENCE_CLEARED_ATTRIBUTE));
+        $read = $storage->read($request);
+        self::assertSame(PreferenceReadStatus::VALID, $read->status);
+        self::assertSame('America/New_York', $read->preference?->timezone->value());
+        self::assertSame(PreferenceSource::MANUAL, $read->preference->source);
+    }
+
+    public function testApplicationManualCookieWriteSurvivesCleanupAfterExpiredRead(): void
+    {
+        $clock = $this->fixedClock();
+        $storage = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
+        $expiredResponse = new Response();
+        $storage->write(
+            Request::create('https://example.test'),
+            $expiredResponse,
+            new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::BROWSER, new \DateTimeImmutable('2025-12-31T22:59:59Z')),
+        );
+        $expiredCookie = $expiredResponse->headers->getCookies()[0];
+        $request = Request::create('https://example.test/settings', 'POST');
+        $request->cookies->set($expiredCookie->getName(), $expiredCookie->getValue());
+
+        (new StoredPreferenceTimezoneResolver($storage))->resolve($request);
+        $cachedRead = $request->attributes->get(StoredPreferenceTimezoneResolver::READ_ATTRIBUTE);
+        self::assertInstanceOf(TimezonePreferenceRead::class, $cachedRead);
+        self::assertSame(PreferenceReadStatus::EXPIRED, $cachedRead->status);
+        $response = new Response();
+        $storage->write($request, $response, new TimezonePreference(TimezoneId::fromString('Europe/Paris'), PreferenceSource::MANUAL, $clock->now()));
+        (new InvalidPreferenceCleanupListener($storage, PersistenceFailureStrategy::CONTINUE))->onKernelResponse(
+            new ResponseEvent($this->createStub(HttpKernelInterface::class), $request, HttpKernelInterface::MAIN_REQUEST, $response),
+        );
+
+        self::assertFalse($request->attributes->has(InvalidPreferenceCleanupListener::PREFERENCE_CLEARED_ATTRIBUTE));
+        $cookies = $response->headers->getCookies();
+        self::assertCount(1, $cookies);
+        $freshCookie = $cookies[0];
+        self::assertInstanceOf(Cookie::class, $freshCookie);
+        self::assertNotSame('', (string) $freshCookie->getValue());
+        self::assertGreaterThan($clock->now()->getTimestamp(), $freshCookie->getExpiresTime());
+        $followUp = Request::create('https://example.test');
+        $followUp->cookies->set($freshCookie->getName(), $freshCookie->getValue());
+        $read = $storage->read($followUp);
+        self::assertSame(PreferenceReadStatus::VALID, $read->status);
+        self::assertSame('Europe/Paris', $read->preference?->timezone->value());
+        self::assertSame(PreferenceSource::MANUAL, $read->preference->source);
+    }
+
     #[DataProvider('writeOutcomes')]
     public function testWrittenFlagRequiresAnActualSuccessfulWrite(bool $fail, bool $expectedFlag): void
     {

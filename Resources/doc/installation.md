@@ -151,6 +151,8 @@ public function clear(Request $request, Response $response): void;
 
 The storage must preserve the preference timezone, `manual|browser` source, and recording time. Built-in session storage stores the envelope directly; cookie storage encodes a signed versioned JSON envelope.
 
+A successful `write()` must also set the request attribute `TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE` (`_lunetics_timezone.preference_written`) to `true`, as the built-in storages do. The bundle's cleanup listener clears invalid or expired stored preferences on the response and skips that cleanup only when this marker is present — an application write (for example a settings form persisting a `manual` preference) would otherwise be deleted again in the same request whenever the incoming request carried a corrupt or expired record.
+
 ## MaxMind City
 
 Install `geoip2/geoip2` and point `resolution.maxmind.database` at a GeoLite2 City or GeoIP2 City database. Both use the reader's `city()` lookup. Country and ASN databases are unsupported. GeoIP2 Enterprise is supported only across the custom reader boundary: configure `resolution.maxmind.reader` with a service implementing `MaxMindCityReaderInterface::timezoneForIp(string $ipAddress): TimezoneId|string|null`, or adapt a callable with `CallableMaxMindCityReader`. Exactly one of `database` and `reader` is required when enabled.

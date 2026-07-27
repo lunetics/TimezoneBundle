@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Lunetics\TimezoneBundle\EventListener;
 
-use Lunetics\TimezoneBundle\Controller\BrowserTimezoneController;
 use Lunetics\TimezoneBundle\Exception\PersistenceFailureExceptionInterface;
 use Lunetics\TimezoneBundle\Resolution\PersistenceFailureStrategy;
 use Lunetics\TimezoneBundle\Resolver\StoredPreferenceTimezoneResolver;
@@ -34,7 +33,7 @@ final readonly class InvalidPreferenceCleanupListener implements EventSubscriber
         }
 
         $request = $event->getRequest();
-        if (true === $request->attributes->get(BrowserTimezoneController::PREFERENCE_WRITTEN_ATTRIBUTE)) {
+        if (true === $request->attributes->get(TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE)) {
             return;
         }
 

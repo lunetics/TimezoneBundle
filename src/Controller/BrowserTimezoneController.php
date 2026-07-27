@@ -21,7 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final readonly class BrowserTimezoneController
 {
-    public const PREFERENCE_WRITTEN_ATTRIBUTE = '_lunetics_timezone.preference_written';
+    public const PREFERENCE_WRITTEN_ATTRIBUTE = TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE;
 
     public function __construct(
         private TimezonePreferenceStorageInterface $storage,
