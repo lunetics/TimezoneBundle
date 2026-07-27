@@ -34,6 +34,7 @@ use Lunetics\TimezoneBundle\Resolver\PhpCountryTimezoneSource;
 use Lunetics\TimezoneBundle\Resolver\RequestAttributeTimezoneResolver;
 use Lunetics\TimezoneBundle\Resolver\StoredPreferenceTimezoneResolver;
 use Lunetics\TimezoneBundle\Storage\CookieTimezoneStorage;
+use Lunetics\TimezoneBundle\Storage\PreferenceWriteMarkingStorage;
 use Lunetics\TimezoneBundle\Storage\PreferenceSource;
 use Lunetics\TimezoneBundle\Storage\SessionTimezoneStorage;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceStorageInterface;
@@ -45,6 +46,7 @@ use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
@@ -180,7 +182,7 @@ final class LuneticsTimezoneBundle extends AbstractBundle
         $storage = $config['persistence']['storage'];
         if ('session' === $storage) {
             $services->set(SessionTimezoneStorage::class)->arg('$key', $config['persistence']['session']['key']);
-            $services->alias(TimezonePreferenceStorageInterface::class, SessionTimezoneStorage::class);
+            $services->alias('lunetics_timezone.storage.configured', SessionTimezoneStorage::class);
         } elseif ('cookie' === $storage) {
             $cookie = $config['persistence']['cookie'];
             $services->set(CookieTimezoneStorage::class)
@@ -189,10 +191,13 @@ final class LuneticsTimezoneBundle extends AbstractBundle
                 ->arg('$domain', $cookie['domain'])->arg('$secure', 'auto' === $cookie['secure'] ? null : $cookie['secure'])
                 ->arg('$httpOnly', $cookie['http_only'])->arg('$sameSite', $cookie['same_site'])
                 ->arg('$futureSkew', $cookie['future_skew'])->arg('$maxEncodedSize', $cookie['max_size']);
-            $services->alias(TimezonePreferenceStorageInterface::class, CookieTimezoneStorage::class);
+            $services->alias('lunetics_timezone.storage.configured', CookieTimezoneStorage::class);
         } else {
-            $services->alias(TimezonePreferenceStorageInterface::class, $storage);
+            $services->alias('lunetics_timezone.storage.configured', $storage);
         }
+        $services->set(PreferenceWriteMarkingStorage::class)
+            ->args([service('lunetics_timezone.storage.configured'), service(RequestStack::class)]);
+        $services->alias(TimezonePreferenceStorageInterface::class, PreferenceWriteMarkingStorage::class);
 
         $resolution = $config['resolution'];
         $container->setParameter('lunetics_timezone.resolution.user', $resolution['user']);

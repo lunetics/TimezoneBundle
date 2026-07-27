@@ -123,7 +123,6 @@ final readonly class CookieTimezoneStorage implements TimezonePreferenceStorageI
         } catch (\JsonException|\LengthException|\RuntimeException $failure) {
             throw TimezoneStorageException::operationFailed('write', $failure);
         }
-        $request->attributes->set(self::PREFERENCE_WRITTEN_ATTRIBUTE, true);
     }
 
     public function clear(Request $request, Response $response): void

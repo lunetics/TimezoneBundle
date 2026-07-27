@@ -70,7 +70,6 @@ final readonly class BrowserTimezoneController
                 return $response;
             }
             $this->storage->write($request, $response, $current);
-            $request->attributes->set(self::PREFERENCE_WRITTEN_ATTRIBUTE, true);
         } catch (PersistenceFailureExceptionInterface) {
             return new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
         }

@@ -9,6 +9,7 @@ use Lunetics\TimezoneBundle\Event\TimezonePreferenceChangedEvent;
 use Lunetics\TimezoneBundle\Exception\TimezoneStorageException;
 use Lunetics\TimezoneBundle\Storage\PreferenceReadStatus;
 use Lunetics\TimezoneBundle\Storage\PreferenceSource;
+use Lunetics\TimezoneBundle\Storage\PreferenceWriteMarkingStorage;
 use Lunetics\TimezoneBundle\Storage\TimezonePreference;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceRead;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceStorageInterface;
@@ -17,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -56,8 +58,10 @@ final class BrowserTimezoneControllerTest extends TestCase
         $storage = new RecordingStorage();
         $dispatcher = new RecordingDispatcher();
         $request = $this->request('{"timezone":"Europe/Berlin"}', 'application/vnd.lunetics+json; charset=utf-8');
+        $stack = new RequestStack();
+        $stack->push($request);
 
-        $response = ($this->controller($storage, $dispatcher))($request);
+        $response = ($this->controller(new PreferenceWriteMarkingStorage($storage, $stack), $dispatcher))($request);
 
         self::assertSame(204, $response->getStatusCode());
         self::assertCount(1, $storage->writes);
@@ -145,7 +149,7 @@ final class BrowserTimezoneControllerTest extends TestCase
         self::assertSame(204, $controller($request)->getStatusCode());
     }
 
-    private function controller(RecordingStorage $storage, RecordingDispatcher $dispatcher): BrowserTimezoneController
+    private function controller(TimezonePreferenceStorageInterface $storage, RecordingDispatcher $dispatcher): BrowserTimezoneController
     {
         return new BrowserTimezoneController($storage, $this->clock(), $dispatcher);
     }

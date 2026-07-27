@@ -151,7 +151,7 @@ public function clear(Request $request, Response $response): void;
 
 The storage must preserve the preference timezone, `manual|browser` source, and recording time. Built-in session storage stores the envelope directly; cookie storage encodes a signed versioned JSON envelope.
 
-A successful `write()` must also set the request attribute `TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE` (`_lunetics_timezone.preference_written`) to `true`, as the built-in storages do. The bundle's cleanup listener clears invalid or expired stored preferences on the response and skips that cleanup only when this marker is present — an application write (for example a settings form persisting a `manual` preference) would otherwise be deleted again in the same request whenever the incoming request carried a corrupt or expired record.
+The bundle decorates the configured storage with `PreferenceWriteMarkingStorage`, which records every successful `write()` on the current AND the main request (`TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE`). The cleanup listener clears invalid or expired stored preferences on the response and skips that cleanup when the marker is present — so an application write (for example a settings form persisting a `manual` preference, even from a subrequest) survives the same-request cleanup. Custom storages do not need to set the marker themselves; writes only have to go through the storage service the bundle wires (inject `TimezonePreferenceStorageInterface`, not your concrete storage class).
 
 ## MaxMind City
 

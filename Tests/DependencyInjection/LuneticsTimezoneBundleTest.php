@@ -143,10 +143,7 @@ final class LuneticsTimezoneBundleTest extends TestCase
         $container->setAlias('application.storage.b', 'application.storage.a');
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(sprintf(
-            'Alias cycle detected while resolving configured timezone preference storage service "%s": application.storage.a -> application.storage.b -> application.storage.a.',
-            TimezonePreferenceStorageInterface::class,
-        ));
+        $this->expectExceptionMessage('Alias cycle detected while resolving configured timezone preference storage service "lunetics_timezone.storage.configured": application.storage.a -> application.storage.b -> application.storage.a.');
         $container->compile();
     }
 

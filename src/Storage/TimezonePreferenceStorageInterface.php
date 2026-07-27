@@ -11,11 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 interface TimezonePreferenceStorageInterface
 {
     /**
-     * Request attribute marking that a preference write succeeded during the
-     * current request, regardless of who triggered it. Implementations must
-     * set it to true inside write(); the invalid-preference cleanup listener
-     * skips its response-time cleanup when the marker is present so a freshly
-     * written preference is never cleared again within the same request.
+     * Request attribute set to true when a preference write succeeded during
+     * the current request lifecycle. The bundle maintains it by decorating the
+     * configured storage (PreferenceWriteMarkingStorage), so implementations
+     * do not need to set it themselves — writes only have to go through the
+     * storage service the bundle wires. The invalid-preference cleanup
+     * listener skips its response-time cleanup when the marker is present on
+     * the main request.
      */
     public const PREFERENCE_WRITTEN_ATTRIBUTE = '_lunetics_timezone.preference_written';
 

@@ -52,10 +52,10 @@ final class TimezoneCompilerPass implements CompilerPassInterface
             }
         }
 
-        if (!$container->hasAlias(TimezonePreferenceStorageInterface::class)) {
+        if (!$container->hasAlias('lunetics_timezone.storage.configured')) {
             return;
         }
-        $id = $this->resolveServiceId($container, TimezonePreferenceStorageInterface::class, 'timezone preference storage');
+        $id = $this->resolveServiceId($container, 'lunetics_timezone.storage.configured', 'timezone preference storage');
         if (!$container->hasDefinition($id)) {
             return;
         }

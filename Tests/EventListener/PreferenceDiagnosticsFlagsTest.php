@@ -13,6 +13,7 @@ use Lunetics\TimezoneBundle\Resolver\StoredPreferenceTimezoneResolver;
 use Lunetics\TimezoneBundle\Storage\PreferenceReadStatus;
 use Lunetics\TimezoneBundle\Storage\PreferenceSource;
 use Lunetics\TimezoneBundle\Storage\CookieTimezoneStorage;
+use Lunetics\TimezoneBundle\Storage\PreferenceWriteMarkingStorage;
 use Lunetics\TimezoneBundle\Storage\SessionTimezoneStorage;
 use Lunetics\TimezoneBundle\Storage\TimezonePreference;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceRead;
@@ -24,6 +25,7 @@ use Psr\Clock\ClockInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -36,12 +38,12 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
     public function testFreshSessionPreferenceIsNotClearedBecauseResolverCachedInvalidEnvelope(): void
     {
         $clock = $this->fixedClock();
-        $storage = new SessionTimezoneStorage();
         $session = new Session(new MockArraySessionStorage());
         $session->start();
         $session->set('_lunetics_timezone', ['v' => 1]);
         $request = $this->browserRequest();
         $request->setSession($session);
+        $storage = $this->marking(new SessionTimezoneStorage(), $request);
         $events = [];
         $dispatcher = $this->recordingDispatcher($events);
 
@@ -63,9 +65,9 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
     public function testFreshCookiePreferenceIsNotClearedBecauseResolverCachedExpiredPreference(): void
     {
         $clock = $this->fixedClock();
-        $storage = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
+        $inner = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
         $expiredResponse = new Response();
-        $storage->write(
+        $inner->write(
             Request::create('https://example.test'),
             $expiredResponse,
             new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::BROWSER, new \DateTimeImmutable('2025-12-31T22:59:59Z')),
@@ -73,6 +75,7 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
         $expiredCookie = $expiredResponse->headers->getCookies()[0];
         $request = $this->browserRequest('https://example.test/_lunetics/timezone/browser');
         $request->cookies->set($expiredCookie->getName(), $expiredCookie->getValue());
+        $storage = $this->marking($inner, $request);
         $events = [];
         $dispatcher = $this->recordingDispatcher($events);
 
@@ -101,12 +104,12 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
 
     public function testApplicationManualSessionWriteSurvivesCleanupAfterInvalidRead(): void
     {
-        $storage = new SessionTimezoneStorage();
         $session = new Session(new MockArraySessionStorage());
         $session->start();
         $session->set('_lunetics_timezone', ['v' => 1]);
         $request = Request::create('/settings', 'POST');
         $request->setSession($session);
+        $storage = $this->marking(new SessionTimezoneStorage(), $request);
 
         (new StoredPreferenceTimezoneResolver($storage))->resolve($request);
         $cachedRead = $request->attributes->get(StoredPreferenceTimezoneResolver::READ_ATTRIBUTE);
@@ -128,9 +131,9 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
     public function testApplicationManualCookieWriteSurvivesCleanupAfterExpiredRead(): void
     {
         $clock = $this->fixedClock();
-        $storage = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
+        $inner = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
         $expiredResponse = new Response();
-        $storage->write(
+        $inner->write(
             Request::create('https://example.test'),
             $expiredResponse,
             new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::BROWSER, new \DateTimeImmutable('2025-12-31T22:59:59Z')),
@@ -138,6 +141,7 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
         $expiredCookie = $expiredResponse->headers->getCookies()[0];
         $request = Request::create('https://example.test/settings', 'POST');
         $request->cookies->set($expiredCookie->getName(), $expiredCookie->getValue());
+        $storage = $this->marking($inner, $request);
 
         (new StoredPreferenceTimezoneResolver($storage))->resolve($request);
         $cachedRead = $request->attributes->get(StoredPreferenceTimezoneResolver::READ_ATTRIBUTE);
@@ -167,12 +171,12 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
     #[DataProvider('writeOutcomes')]
     public function testWrittenFlagRequiresAnActualSuccessfulWrite(bool $fail, bool $expectedFlag): void
     {
-        $storage = $this->storage($fail, false);
         $clock = $this->createStub(ClockInterface::class);
         $clock->method('now')->willReturn(new \DateTimeImmutable('2026-01-01T00:00:00Z'));
         $dispatcher = $this->createStub(EventDispatcherInterface::class);
-        $controller = new BrowserTimezoneController($storage, $clock, $dispatcher);
         $request = Request::create('/', 'POST', [], [], [], ['CONTENT_TYPE' => 'application/json'], '{"timezone":"Europe/Berlin"}');
+        $storage = $this->marking($this->storage($fail, false), $request);
+        $controller = new BrowserTimezoneController($storage, $clock, $dispatcher);
 
         $controller($request);
 
@@ -229,6 +233,44 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
 
         $this->expectException(TimezoneStorageException::class);
         $listener->onKernelResponse($event);
+    }
+
+    public function testSubrequestWriteMarksTheMainRequestForCleanup(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->start();
+        $session->set('_lunetics_timezone', ['v' => 1]);
+        $mainRequest = Request::create('/page');
+        $mainRequest->setSession($session);
+        $storage = $this->marking(new SessionTimezoneStorage(), $mainRequest);
+
+        (new StoredPreferenceTimezoneResolver($storage))->resolve($mainRequest);
+        $cachedRead = $mainRequest->attributes->get(StoredPreferenceTimezoneResolver::READ_ATTRIBUTE);
+        self::assertInstanceOf(TimezonePreferenceRead::class, $cachedRead);
+        self::assertSame(PreferenceReadStatus::INVALID, $cachedRead->status);
+        $subRequest = Request::create('/_fragment');
+        $subRequest->setSession($session);
+        $response = new Response();
+        $storage->write($subRequest, $response, new TimezonePreference(TimezoneId::fromString('Europe/Paris'), PreferenceSource::MANUAL, new \DateTimeImmutable('2026-01-01T00:00:00Z')));
+
+        self::assertTrue($mainRequest->attributes->getBoolean(TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE));
+        (new InvalidPreferenceCleanupListener($storage, PersistenceFailureStrategy::CONTINUE))->onKernelResponse(
+            new ResponseEvent($this->createStub(HttpKernelInterface::class), $mainRequest, HttpKernelInterface::MAIN_REQUEST, $response),
+        );
+
+        self::assertFalse($mainRequest->attributes->has(InvalidPreferenceCleanupListener::PREFERENCE_CLEARED_ATTRIBUTE));
+        $read = $storage->read($mainRequest);
+        self::assertSame(PreferenceReadStatus::VALID, $read->status);
+        self::assertSame('Europe/Paris', $read->preference?->timezone->value());
+        self::assertSame(PreferenceSource::MANUAL, $read->preference->source);
+    }
+
+    private function marking(TimezonePreferenceStorageInterface $inner, Request $mainRequest): PreferenceWriteMarkingStorage
+    {
+        $stack = new RequestStack();
+        $stack->push($mainRequest);
+
+        return new PreferenceWriteMarkingStorage($inner, $stack);
     }
 
     private function fixedClock(): ClockInterface
