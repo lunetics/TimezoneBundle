@@ -14,7 +14,7 @@ final readonly class CurrentTimezoneProvider implements CurrentTimezoneProviderI
 {
     public const RESOLUTION_ATTRIBUTE = '_lunetics_timezone.resolution';
 
-    public function __construct(private TimezoneExecutionContext $context, private RequestStack $requestStack, private TimezoneId $defaultTimezone)
+    public function __construct(private TimezoneExecutionContextInterface $context, private RequestStack $requestStack, private TimezoneId $defaultTimezone)
     {
     }
 

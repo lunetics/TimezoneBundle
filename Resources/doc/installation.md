@@ -117,7 +117,7 @@ When `persistence.storage: session` is used, browser writes require Framework se
 
 ## Provider and execution context
 
-Inject `Lunetics\TimezoneBundle\Context\CurrentTimezoneProviderInterface`. Its `getTimezone()` returns `TimezoneId`, `getDateTimeZone()` returns `\DateTimeZone`, and `getResolution()` includes source and kind. `TimezoneExecutionContextInterface::run(TimezoneId $timezone, callable $callback): mixed` temporarily overrides the current timezone for a bounded callback.
+Inject `Lunetics\TimezoneBundle\Context\CurrentTimezoneProviderInterface`. Its `getTimezone()` returns `TimezoneId`, `getDateTimeZone()` returns `\DateTimeZone`, and `getResolution()` includes source and kind. `TimezoneExecutionContextInterface::run(TimezoneId $timezone, callable $callback): mixed` temporarily overrides the current timezone for a bounded callback; `current(): ?TimezoneId` exposes the innermost active scope.
 
 ## Users and OIDC
 
