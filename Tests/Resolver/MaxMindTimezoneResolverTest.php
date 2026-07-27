@@ -43,6 +43,8 @@ final class MaxMindTimezoneResolverTest extends TestCase
         yield 'ipv6 well-known nat64' => ['64:ff9b::808:808'];
         yield 'ipv6 local-use nat64' => ['64:ff9b:1::1'];
         yield 'ipv6 6to4' => ['2002:a00:1::1'];
+        yield 'ipv6 teredo' => ['2001::1'];
+        yield 'ipv6 benchmarking' => ['2001:2::1'];
     }
 
     #[DataProvider('nonPublicAddresses')]
