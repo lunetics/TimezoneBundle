@@ -6,6 +6,7 @@ namespace Lunetics\TimezoneBundle\Tests\Context;
 
 use Lunetics\TimezoneBundle\Context\CurrentTimezoneProvider;
 use Lunetics\TimezoneBundle\Context\TimezoneExecutionContext;
+use Lunetics\TimezoneBundle\Context\TimezoneExecutionContextInterface;
 use Lunetics\TimezoneBundle\Resolution\ResolutionKind;
 use Lunetics\TimezoneBundle\Resolution\TimezoneResolution;
 use Lunetics\TimezoneBundle\Timezone\TimezoneId;
@@ -62,5 +63,14 @@ final class TimezoneExecutionContextTest extends TestCase
             self::assertSame('Asia/Tokyo', $provider->getTimezone()->value());
         });
         self::assertSame(ResolutionKind::DEFAULT, $provider->getResolutionForRequest(new Request())->kind);
+    }
+
+    public function testProviderBindsTheExecutionContextInterface(): void
+    {
+        $parameters = (new \ReflectionClass(CurrentTimezoneProvider::class))->getConstructor()?->getParameters() ?? [];
+        self::assertNotSame([], $parameters);
+        $type = $parameters[0]->getType();
+        self::assertInstanceOf(\ReflectionNamedType::class, $type);
+        self::assertSame(TimezoneExecutionContextInterface::class, $type->getName());
     }
 }
