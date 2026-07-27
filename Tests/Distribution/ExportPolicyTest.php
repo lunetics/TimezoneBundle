@@ -34,12 +34,12 @@ final class ExportPolicyTest extends TestCase
     public function testDistributionArchiveContainsOnlyAllowedPaths(): void
     {
         $root = dirname(__DIR__, 2);
-        if (!is_dir($root.'/.git')) {
+        if (!file_exists($root.'/.git')) {
             self::markTestSkipped('Distribution policy requires a git checkout.');
         }
         $pipes = [];
         $process = proc_open(
-            ['git', '-C', $root, 'archive', '--worktree-attributes', 'HEAD'],
+            ['git', '-C', $root, 'archive', 'HEAD'],
             [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
             $pipes,
         );
@@ -97,7 +97,7 @@ final class ExportPolicyTest extends TestCase
                 continue;
             }
             if ('x' === $typeFlag) {
-                $pendingPath = self::paxPath($data) ?? $pendingPath;
+                $pendingPath = self::paxPath($data);
                 continue;
             }
             if ('L' === $typeFlag) {
