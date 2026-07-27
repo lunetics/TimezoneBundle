@@ -62,6 +62,19 @@ final class TimezoneDataCollectorTest extends TestCase
         self::addToAssertionCount(1);
     }
 
+    public function testResetOnARehydratedCollectorFallsBackToEmptyConfiguration(): void
+    {
+        $collector = new TimezoneDataCollector('UTC', [['name' => 'request_attribute', 'priority' => 1000]]);
+        $restored = unserialize(serialize($collector));
+        self::assertInstanceOf(TimezoneDataCollector::class, $restored);
+
+        $restored->reset();
+
+        $diagnostics = $restored->getDiagnostics();
+        self::assertSame('', $diagnostics['configured_default']);
+        self::assertSame([], $diagnostics['configured_resolvers']);
+    }
+
     public function testSerializationPreservesExactDiagnostics(): void
     {
         $collector = new TimezoneDataCollector('UTC', [['name' => 'request_attribute', 'priority' => 1000]]);

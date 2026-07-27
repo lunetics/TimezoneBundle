@@ -15,11 +15,19 @@ use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
 final class TimezoneDataCollector extends DataCollector
 {
+    // Defaults keep reset() safe on rehydrated collectors: profile
+    // serialization carries only $data, not constructor state.
+    private string $configuredDefault = '';
+    /** @var list<array{name: string, priority: int}> */
+    private array $configuredResolvers = [];
+
     /**
      * @param list<array{name: string, priority: int}> $configuredResolvers
      */
-    public function __construct(private readonly string $configuredDefault, private readonly array $configuredResolvers)
+    public function __construct(string $configuredDefault, array $configuredResolvers)
     {
+        $this->configuredDefault = $configuredDefault;
+        $this->configuredResolvers = $configuredResolvers;
         $this->reset();
     }
 
