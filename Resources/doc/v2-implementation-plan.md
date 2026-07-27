@@ -64,6 +64,7 @@ interface CurrentTimezoneProviderInterface
 interface TimezoneExecutionContextInterface
 {
     public function run(TimezoneId $timezone, callable $callback): mixed;
+    public function current(): ?TimezoneId;
 }
 
 interface TimezoneAwareUserInterface
@@ -119,7 +120,7 @@ new TimezoneStamp(string $timezone);
 
 Every built-in storage envelope has exactly these keys in order: `v`, `timezone`, `source`, `recorded_at`. Version is integer `1`; timezone is a validated IANA identifier; source is `manual|browser`; recording time is an ISO-8601/ATOM string. Session storage stores this array under its configured key and does not start a missing session merely to read or clear it.
 
-Cookie storage serializes the same versioned envelope as JSON, base64url-encodes it, and appends a base64url HMAC-SHA-256 signature over the encoded payload. The HMAC key is derived from the configured secret using HKDF-SHA-256, length 32, info `lunetics-timezone-cookie-v1`. Reads use constant-time signature comparison, enforce encoded-size, schema/version, timezone/source/time, future-skew, and maximum-age checks, and classify bad input without exposing it. Cookie settings cover name, age, path, domain, secure, HttpOnly, SameSite, skew, and maximum size. `SameSite=None` and `__Host-` require explicit `secure=true`; `__Host-` also requires `/` and no domain.
+Cookie storage serializes the same versioned envelope as JSON, base64url-encodes it, and appends a base64url HMAC-SHA-256 signature over the encoded payload. The HMAC key is derived from the configured secret using HKDF-SHA-256, length 32, info `lunetics-timezone-cookie-v1`. Reads use constant-time signature comparison, enforce encoded-size, schema/version, timezone/source/time, future-skew, and maximum-age checks, and classify bad input without exposing it. Cookie settings cover name, age, path, domain, secure, HttpOnly, SameSite, skew, and maximum size. `SameSite=None`, `__Host-`, and `__Secure-` require explicit `secure=true`; `__Host-` also requires `/` and no domain.
 
 Custom storage is selected by service ID and must implement the exact request/response-aware interface. V2 ships no Doctrine or Redis implementation.
 
