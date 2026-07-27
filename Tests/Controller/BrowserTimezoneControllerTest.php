@@ -80,8 +80,10 @@ final class BrowserTimezoneControllerTest extends TestCase
         $storage = new RecordingStorage(new TimezonePreferenceRead(PreferenceReadStatus::VALID, $this->preference($timezone, $source)));
         $dispatcher = new RecordingDispatcher();
         $request = $this->request('{"timezone":"Europe/Berlin"}', 'application/json');
+        $stack = new RequestStack();
+        $stack->push($request);
 
-        $response = ($this->controller($storage, $dispatcher))($request);
+        $response = ($this->controller(new PreferenceWriteMarkingStorage($storage, $stack), $dispatcher))($request);
 
         self::assertSame(204, $response->getStatusCode());
         self::assertSame([], $storage->writes);
@@ -102,8 +104,10 @@ final class BrowserTimezoneControllerTest extends TestCase
         $storage = new RecordingStorage(failRead: $failRead, failWrite: $failWrite);
         $dispatcher = new RecordingDispatcher();
         $request = $this->request('{"timezone":"Europe/Berlin"}', 'application/json');
+        $stack = new RequestStack();
+        $stack->push($request);
 
-        $response = ($this->controller($storage, $dispatcher))($request);
+        $response = ($this->controller(new PreferenceWriteMarkingStorage($storage, $stack), $dispatcher))($request);
 
         self::assertSame(503, $response->getStatusCode());
         self::assertFalse($request->attributes->has(BrowserTimezoneController::PREFERENCE_WRITTEN_ATTRIBUTE));
