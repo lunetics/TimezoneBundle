@@ -16,6 +16,8 @@ use Lunetics\TimezoneBundle\Bridge\Twig\TwigTimezoneScope;
 use Lunetics\TimezoneBundle\Bridge\Twig\TwigTimezoneSubscriber;
 use Lunetics\TimezoneBundle\Bridge\WebProfiler\TimezoneDataCollector;
 use Lunetics\TimezoneBundle\Clock\SystemClock;
+use Lunetics\TimezoneBundle\Context\CurrentTimezoneProviderInterface;
+use Lunetics\TimezoneBundle\Context\TimezoneExecutionContextInterface;
 use Lunetics\TimezoneBundle\Contract\Oidc\OidcClaimsProviderInterface;
 use Lunetics\TimezoneBundle\Contract\User\UserTimezoneAccessorInterface;
 use Lunetics\TimezoneBundle\Controller\BrowserTimezoneController;
@@ -25,10 +27,15 @@ use Lunetics\TimezoneBundle\Resolver\MaxMindTimezoneResolver;
 use Lunetics\TimezoneBundle\Resolver\OidcTimezoneResolver;
 use Lunetics\TimezoneBundle\Resolver\TimezoneResolverInterface;
 use Lunetics\TimezoneBundle\Resolver\UserTimezoneResolver;
+use Lunetics\TimezoneBundle\Storage\PreferenceWriteMarkingStorage;
+use Lunetics\TimezoneBundle\Storage\SessionTimezoneStorage;
 use Lunetics\TimezoneBundle\Storage\TimezonePreferenceStorageInterface;
+use Lunetics\TimezoneBundle\Timezone\TimezoneId;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
@@ -201,6 +208,38 @@ final class LuneticsTimezoneBundleTest extends TestCase
 
         $this->expectException(\InvalidArgumentException::class);
         $container->compile();
+    }
+
+    public function testEveryStorageReferenceResolvesToTheMarkingDecorator(): void
+    {
+        $container = $this->container();
+        $container->compile();
+
+        self::assertTrue($container->hasAlias(SessionTimezoneStorage::class), 'The concrete storage id must be decorated (alias to the decorator).');
+        self::assertSame(PreferenceWriteMarkingStorage::class, (string) $container->getAlias(SessionTimezoneStorage::class));
+        self::assertSame(PreferenceWriteMarkingStorage::class, (string) $container->getAlias(TimezonePreferenceStorageInterface::class));
+    }
+
+    public function testProviderObservesAReplacedExecutionContext(): void
+    {
+        $container = $this->container([], static function (ContainerBuilder $container): void {
+            $container->setDefinition(RecordingExecutionContext::class, new Definition(RecordingExecutionContext::class))->setPublic(true);
+            $container->addCompilerPass(new class implements CompilerPassInterface {
+                public function process(ContainerBuilder $container): void
+                {
+                    $container->setAlias(TimezoneExecutionContextInterface::class, RecordingExecutionContext::class)->setPublic(true);
+                }
+            }, PassConfig::TYPE_BEFORE_OPTIMIZATION, -100);
+        });
+        $container->compile();
+
+        $context = $container->get(TimezoneExecutionContextInterface::class);
+        self::assertInstanceOf(RecordingExecutionContext::class, $context);
+        $provider = $container->get(CurrentTimezoneProviderInterface::class);
+        self::assertInstanceOf(CurrentTimezoneProviderInterface::class, $provider);
+        $context->run(TimezoneId::fromString('Asia/Tokyo'), static function () use ($provider): void {
+            self::assertSame('Asia/Tokyo', $provider->getTimezone()->value());
+        });
     }
 
     public function testSecurePrefixedCookieNameRequiresExplicitSecureTrue(): void
@@ -554,5 +593,26 @@ final class FixedApplicationClock implements ClockInterface
     public function now(): \DateTimeImmutable
     {
         return new \DateTimeImmutable('2026-01-01T00:00:00Z');
+    }
+}
+
+final class RecordingExecutionContext implements TimezoneExecutionContextInterface
+{
+    /** @var list<TimezoneId> */
+    private array $stack = [];
+
+    public function run(TimezoneId $timezone, callable $callback): mixed
+    {
+        $this->stack[] = $timezone;
+        try {
+            return $callback();
+        } finally {
+            array_pop($this->stack);
+        }
+    }
+
+    public function current(): ?TimezoneId
+    {
+        return [] === $this->stack ? null : $this->stack[count($this->stack) - 1];
     }
 }

@@ -13,7 +13,7 @@ V2 is a clean break. It contains no backward-compatibility layer, aliases, adapt
 
 ## Persistence and identity
 
-V2 storage implements `TimezonePreferenceStorageInterface`; its `read()` receives a `Request`, while `write()` and `clear()` receive both `Request` and `Response`. Built-in state uses the versioned envelope `v`, `timezone`, `source`, `recorded_at`. Old session/cookie values are not a supported V2 format.
+V2 storage implements `TimezonePreferenceStorageInterface`; its `read()` receives a `Request`, while `write()` and `clear()` receive both `Request` and `Response`. Built-in state uses the versioned envelope `v`, `timezone`, `source`, `recorded_at`. Old session/cookie values are not a supported V2 format. The configured storage service is decorated by the bundle (write tracking for the invalid-preference cleanup): type-hint `TimezonePreferenceStorageInterface` when injecting it — the concrete class id resolves to the decorator, so a concrete type-hint fails loudly instead of bypassing the tracking.
 
 Authenticated users either implement `TimezoneAwareUserInterface::getTimezone(): TimezoneId|string|null` or use an explicit `UserTimezoneAccessorInterface`. OIDC claims require an explicit `OidcClaimsProviderInterface`; the default claim is `zoneinfo`, and no reflection/provider-specific integration remains. The public resolution source is `oidc_zoneinfo` for the default `zoneinfo` claim. Any customized claim uses `oidc_claim_<hash>`, where `<hash>` is the first 16 lowercase hexadecimal SHA-256 characters of the exact case-sensitive configured claim name. This bounded hash keeps raw/custom claim names out of diagnostics while remaining stable.
 

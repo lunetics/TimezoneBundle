@@ -182,7 +182,7 @@ final class LuneticsTimezoneBundle extends AbstractBundle
         $storage = $config['persistence']['storage'];
         if ('session' === $storage) {
             $services->set(SessionTimezoneStorage::class)->arg('$key', $config['persistence']['session']['key']);
-            $services->alias('lunetics_timezone.storage.configured', SessionTimezoneStorage::class);
+            $configuredStorageId = SessionTimezoneStorage::class;
         } elseif ('cookie' === $storage) {
             $cookie = $config['persistence']['cookie'];
             $services->set(CookieTimezoneStorage::class)
@@ -191,13 +191,19 @@ final class LuneticsTimezoneBundle extends AbstractBundle
                 ->arg('$domain', $cookie['domain'])->arg('$secure', 'auto' === $cookie['secure'] ? null : $cookie['secure'])
                 ->arg('$httpOnly', $cookie['http_only'])->arg('$sameSite', $cookie['same_site'])
                 ->arg('$futureSkew', $cookie['future_skew'])->arg('$maxEncodedSize', $cookie['max_size']);
-            $services->alias('lunetics_timezone.storage.configured', CookieTimezoneStorage::class);
+            $configuredStorageId = CookieTimezoneStorage::class;
         } else {
-            $services->alias('lunetics_timezone.storage.configured', $storage);
+            $configuredStorageId = $storage;
         }
+        // Real service decoration: EVERY reference to the configured storage —
+        // interface alias, built-in class id, or custom service id — resolves
+        // to the marking decorator; the undecorated storage stays reachable
+        // only as ".inner".
+        $services->alias('lunetics_timezone.storage.configured', $configuredStorageId);
         $services->set(PreferenceWriteMarkingStorage::class)
-            ->args([service('lunetics_timezone.storage.configured'), service(RequestStack::class)]);
-        $services->alias(TimezonePreferenceStorageInterface::class, PreferenceWriteMarkingStorage::class);
+            ->decorate($configuredStorageId)
+            ->args([service('.inner'), service(RequestStack::class)]);
+        $services->alias(TimezonePreferenceStorageInterface::class, $configuredStorageId);
 
         $resolution = $config['resolution'];
         $container->setParameter('lunetics_timezone.resolution.user', $resolution['user']);
