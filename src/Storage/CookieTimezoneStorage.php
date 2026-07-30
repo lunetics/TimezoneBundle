@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-final readonly class CookieTimezoneStorage implements TimezonePreferenceStorageInterface
+final readonly class CookieTimezoneStorage implements ResponseScopedStorageInterface
 {
     private const MAX_ENCODED_SIZE = 4096;
     private string $key;
@@ -127,7 +127,26 @@ final readonly class CookieTimezoneStorage implements TimezonePreferenceStorageI
 
     public function clear(Request $request, Response $response): void
     {
+        // Never clobber a preference written to this very response — a
+        // forwarded controller writes on the response that later becomes the
+        // main one. Diagnostics still report the cleanup as performed, since
+        // the decision is taken below the listener.
+        if ($this->hasFreshCookie($response)) {
+            return;
+        }
+
         $response->headers->clearCookie($this->name, $this->path, $this->domain, $this->resolveSecure($request), $this->httpOnly, $this->cookieSameSite());
+    }
+
+    private function hasFreshCookie(Response $response): bool
+    {
+        foreach ($response->headers->getCookies() as $cookie) {
+            if ($this->name === $cookie->getName() && $this->path === $cookie->getPath() && $this->domain === $cookie->getDomain() && '' !== (string) $cookie->getValue()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function resolveSecure(Request $request): bool

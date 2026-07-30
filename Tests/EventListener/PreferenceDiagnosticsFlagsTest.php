@@ -265,6 +265,79 @@ final class PreferenceDiagnosticsFlagsTest extends TestCase
         self::assertSame(PreferenceSource::MANUAL, $read->preference->source);
     }
 
+    public function testDiscardedSubrequestCookieWriteStillClearsTheStaleCookie(): void
+    {
+        $clock = $this->fixedClock();
+        $inner = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
+        $expiredResponse = new Response();
+        $inner->write(
+            Request::create('https://example.test'),
+            $expiredResponse,
+            new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::BROWSER, new \DateTimeImmutable('2025-12-31T22:00:00Z')),
+        );
+        $expiredCookie = $expiredResponse->headers->getCookies()[0];
+        $mainRequest = Request::create('https://example.test/page');
+        $mainRequest->cookies->set($expiredCookie->getName(), $expiredCookie->getValue());
+        $stack = new RequestStack();
+        $stack->push($mainRequest);
+        $storage = new PreferenceWriteMarkingStorage($inner, $stack);
+
+        (new StoredPreferenceTimezoneResolver($storage))->resolve($mainRequest);
+        $subRequest = Request::create('https://example.test/_fragment');
+        $stack->push($subRequest);
+        $storage->write($subRequest, new Response(), new TimezonePreference(TimezoneId::fromString('Europe/Paris'), PreferenceSource::MANUAL, $clock->now()));
+        $stack->pop();
+
+        self::assertFalse($mainRequest->attributes->has(TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE), 'A response-scoped write must not suppress cleanup on a different response.');
+        $mainResponse = new Response();
+        (new InvalidPreferenceCleanupListener($storage, PersistenceFailureStrategy::CONTINUE))->onKernelResponse(
+            new ResponseEvent($this->createStub(HttpKernelInterface::class), $mainRequest, HttpKernelInterface::MAIN_REQUEST, $mainResponse),
+        );
+
+        $cookies = $mainResponse->headers->getCookies();
+        self::assertCount(1, $cookies);
+        self::assertSame('', (string) $cookies[0]->getValue());
+        self::assertLessThan($clock->now()->getTimestamp(), $cookies[0]->getExpiresTime());
+        self::assertTrue($mainRequest->attributes->getBoolean(InvalidPreferenceCleanupListener::PREFERENCE_CLEARED_ATTRIBUTE));
+    }
+
+    public function testForwardedCookieWriteSurvivesCleanupOnTheSharedResponse(): void
+    {
+        $clock = $this->fixedClock();
+        $inner = new CookieTimezoneStorage('test-only-secret', $clock, maxAge: 3600);
+        $expiredResponse = new Response();
+        $inner->write(
+            Request::create('https://example.test'),
+            $expiredResponse,
+            new TimezonePreference(TimezoneId::fromString('America/New_York'), PreferenceSource::BROWSER, new \DateTimeImmutable('2025-12-31T22:00:00Z')),
+        );
+        $expiredCookie = $expiredResponse->headers->getCookies()[0];
+        $mainRequest = Request::create('https://example.test/page');
+        $mainRequest->cookies->set($expiredCookie->getName(), $expiredCookie->getValue());
+        $stack = new RequestStack();
+        $stack->push($mainRequest);
+        $storage = new PreferenceWriteMarkingStorage($inner, $stack);
+
+        (new StoredPreferenceTimezoneResolver($storage))->resolve($mainRequest);
+        $sharedResponse = new Response();
+        $forwarded = Request::create('https://example.test/forwarded');
+        $stack->push($forwarded);
+        $storage->write($forwarded, $sharedResponse, new TimezonePreference(TimezoneId::fromString('Europe/Paris'), PreferenceSource::MANUAL, $clock->now()));
+        $stack->pop();
+        (new InvalidPreferenceCleanupListener($storage, PersistenceFailureStrategy::CONTINUE))->onKernelResponse(
+            new ResponseEvent($this->createStub(HttpKernelInterface::class), $mainRequest, HttpKernelInterface::MAIN_REQUEST, $sharedResponse),
+        );
+
+        $cookies = $sharedResponse->headers->getCookies();
+        self::assertCount(1, $cookies);
+        self::assertNotSame('', (string) $cookies[0]->getValue());
+        $followUp = Request::create('https://example.test');
+        $followUp->cookies->set($cookies[0]->getName(), $cookies[0]->getValue());
+        $read = $inner->read($followUp);
+        self::assertSame(PreferenceReadStatus::VALID, $read->status);
+        self::assertSame('Europe/Paris', $read->preference?->timezone->value());
+    }
+
     private function marking(TimezonePreferenceStorageInterface $inner, Request $mainRequest): PreferenceWriteMarkingStorage
     {
         $stack = new RequestStack();
