@@ -40,11 +40,18 @@ final class BundleKernelSmokeTest extends TestCase
 {
     private ?BundleSmokeKernel $kernel = null;
     private ?string $runtimeDirectory = null;
+    private bool $bootedDebugKernel = false;
 
     protected function tearDown(): void
     {
         $this->kernel?->shutdown();
-        restore_exception_handler();
+        // Only a booted debug kernel pushes Symfony's exception handler.
+        // Restoring unconditionally would pop PHPUnit's own handler when boot()
+        // failed before that point, and swallow the errors of later tests.
+        if ($this->bootedDebugKernel) {
+            restore_exception_handler();
+        }
+        $this->bootedDebugKernel = false;
         if (null !== $this->runtimeDirectory && is_dir($this->runtimeDirectory)) {
             $this->removeDirectory($this->runtimeDirectory);
         }
@@ -57,6 +64,7 @@ final class BundleKernelSmokeTest extends TestCase
         $this->runtimeDirectory = sys_get_temp_dir().'/lunetics_timezone_kernel_'.bin2hex(random_bytes(8));
         $this->kernel = new BundleSmokeKernel('test', true, dirname(__DIR__, 2), $this->runtimeDirectory);
         $this->kernel->boot();
+        $this->bootedDebugKernel = true;
         $container = $this->kernel->getContainer();
 
         $provider = $container->get(CurrentTimezoneProviderInterface::class);
@@ -160,6 +168,7 @@ final class BundleKernelSmokeTest extends TestCase
         $this->runtimeDirectory = sys_get_temp_dir().'/lunetics_timezone_kernel_'.bin2hex(random_bytes(8));
         $this->kernel = new BundleSmokeKernel('test', true, dirname(__DIR__, 2), $this->runtimeDirectory, false, false);
         $this->kernel->boot();
+        $this->bootedDebugKernel = true;
 
         $browserRequest = Request::create(
             '/_lunetics/timezone/browser',
