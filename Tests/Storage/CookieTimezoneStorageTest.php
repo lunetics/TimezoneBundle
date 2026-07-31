@@ -72,10 +72,10 @@ final class CookieTimezoneStorageTest extends TestCase
         $clock = new MutableClock('2026-01-01T00:00:00Z');
         $storage = $this->storage($clock, maxAge: 3600, futureSkew: 60);
 
-        $expired = $this->encodedCookie($storage, $clock, new \DateTimeImmutable('2025-12-31T22:59:59Z'));
+        $expired = $this->encodedCookie($storage, new \DateTimeImmutable('2025-12-31T22:59:59Z'));
         self::assertSame(PreferenceReadStatus::EXPIRED, $storage->read($this->requestWithCookie($expired))->status);
 
-        $future = $this->encodedCookie($storage, $clock, new \DateTimeImmutable('2026-01-01T00:01:01Z'));
+        $future = $this->encodedCookie($storage, new \DateTimeImmutable('2026-01-01T00:01:01Z'));
         self::assertSame(PreferenceReadStatus::INVALID, $storage->read($this->requestWithCookie($future))->status);
     }
 
@@ -135,6 +135,36 @@ final class CookieTimezoneStorageTest extends TestCase
         self::assertSame(Cookie::SAMESITE_STRICT, $cleared->getSameSite());
     }
 
+    public function testClearKeepsAPreferenceWrittenToTheSameResponse(): void
+    {
+        $clock = new MutableClock('2026-01-01T00:00:00Z');
+        $storage = $this->storage($clock);
+        $request = Request::create('https://example.test');
+        $response = new Response();
+
+        $storage->write($request, $response, $this->preference('Europe/Paris', PreferenceSource::MANUAL, $clock->now()));
+        $storage->clear($request, $response);
+
+        $cookie = $this->onlyCookie($response);
+        self::assertNotSame('', (string) $cookie->getValue(), 'clear() must not clobber a preference written to this response.');
+        self::assertGreaterThan($clock->now()->getTimestamp(), $cookie->getExpiresTime());
+        $read = $storage->read($this->requestWithCookie((string) $cookie->getValue()));
+        self::assertSame(PreferenceReadStatus::VALID, $read->status);
+        self::assertSame('Europe/Paris', $read->preference?->timezone->value());
+    }
+
+    public function testClearRemovesAStaleCookieWhenNoFreshWriteIsPresent(): void
+    {
+        $clock = new MutableClock('2026-01-01T00:00:00Z');
+        $response = new Response();
+
+        $this->storage($clock)->clear(Request::create('https://example.test'), $response);
+
+        $cookie = $this->onlyCookie($response);
+        self::assertSame('', (string) $cookie->getValue());
+        self::assertLessThan($clock->now()->getTimestamp(), $cookie->getExpiresTime());
+    }
+
     public function testConstructorRejectsInvalidCookieName(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -169,7 +199,7 @@ final class CookieTimezoneStorageTest extends TestCase
         return new TimezonePreference(TimezoneId::fromString($timezone), $source, $recordedAt);
     }
 
-    private function encodedCookie(CookieTimezoneStorage $storage, MutableClock $clock, \DateTimeImmutable $recordedAt): string
+    private function encodedCookie(CookieTimezoneStorage $storage, \DateTimeImmutable $recordedAt): string
     {
         $response = new Response();
         $storage->write(Request::create('https://example.test'), $response, $this->preference('Europe/Berlin', PreferenceSource::BROWSER, $recordedAt));
