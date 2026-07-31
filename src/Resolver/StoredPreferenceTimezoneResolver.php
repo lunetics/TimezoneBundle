@@ -18,6 +18,13 @@ final readonly class StoredPreferenceTimezoneResolver implements TimezoneResolve
 {
     public const MANUAL_PRIORITY = 925;
     public const BROWSER_PRIORITY = 800;
+    /**
+     * Caches the storage read for the current request so the manual and
+     * browser resolvers, the cleanup listener and the profiler share one read.
+     * The key is storage-agnostic: every resolver instance participating in it
+     * must be wired to the configured storage service — a second instance
+     * reading a different backend would consume this cached result.
+     */
     public const READ_ATTRIBUTE = '_lunetics_timezone.preference_read';
 
     public function __construct(

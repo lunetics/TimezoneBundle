@@ -153,6 +153,10 @@ The storage must preserve the preference timezone, `manual|browser` source, and 
 
 The bundle decorates the configured storage with `PreferenceWriteMarkingStorage`, which records every successful `write()` on the current AND the main request (`TimezonePreferenceStorageInterface::PREFERENCE_WRITTEN_ATTRIBUTE`). The cleanup listener clears invalid or expired stored preferences on the response and skips that cleanup when the marker is present — so an application write (for example a settings form persisting a `manual` preference, even from a subrequest) survives the same-request cleanup. Custom storages do not need to set the marker themselves; writes only have to go through the storage service the bundle wires (inject `TimezonePreferenceStorageInterface`, not your concrete storage class).
 
+The shipped `StoredPreferenceTimezoneResolver` caches its storage read on the request (`READ_ATTRIBUTE`) so both built-in instances, the cleanup listener and the profiler share a single read. Registering another instance of that class against a *different* storage service would make it consume the cached read of the configured one; a resolver for a second backend implements `TimezoneResolverInterface` directly instead.
+
+`TimezonePreferenceChangedEvent` is dispatched after the write, and a listener that throws fails the request like any other Symfony event listener. Note that the two backends differ at that point: a session write is already durable, while a cookie write is only realized through the `Set-Cookie` header of the response that the exception discards. Keep listeners of this event free of failure paths, or defer their work to `kernel.terminate`.
+
 Storage that carries its writes on the `Response` instead of a lifecycle-wide backend — cookie storage, and any custom storage implementing `ResponseScopedStorageInterface` — is treated differently on subrequests: its marker is not propagated to the main request, because a fragment response is discarded before it reaches the client. The cleanup then still removes the stale record, and the storage refuses to clear a preference it has just written to the same response.
 
 ## MaxMind City
