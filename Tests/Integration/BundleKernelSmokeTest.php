@@ -45,14 +45,13 @@ final class BundleKernelSmokeTest extends TestCase
     protected function tearDown(): void
     {
         $this->kernel?->shutdown();
-        // A booted debug kernel registers Symfony's ErrorHandler, which pushes
-        // both a PHP error and a PHP exception handler; both have to come off
-        // again. Restoring unconditionally would pop PHPUnit's own handlers
-        // when boot() failed before that point, and swallow the errors of
-        // later tests.
+        // Only the exception handler needs popping: under PHPUnit the error
+        // handler on top at this point is PHPUnit's own — Symfony's is already
+        // gone — so restoring it too would remove PHPUnit's, which the runner
+        // reports as a risky test. Restoring unconditionally would likewise pop
+        // PHPUnit's handler when boot() failed before Symfony pushed anything.
         if ($this->bootedDebugKernel) {
             restore_exception_handler();
-            restore_error_handler();
         }
         $this->bootedDebugKernel = false;
         if (null !== $this->runtimeDirectory && is_dir($this->runtimeDirectory)) {
