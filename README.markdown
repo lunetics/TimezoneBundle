@@ -1,6 +1,6 @@
 # LuneticsTimezoneBundle 2.x
 
-LuneticsTimezoneBundle resolves an IANA timezone for each Symfony request and exposes it through a stable application context. It can combine explicit request data, trusted headers, persisted preferences, authenticated users, OIDC claims, MaxMind City data, and locale fallbacks.
+LuneticsTimezoneBundle resolves an IANA timezone once per main Symfony request — subrequests reuse that result — and exposes it through a stable application context. It can combine explicit request data, trusted headers, persisted preferences, authenticated users, OIDC claims, MaxMind City data, and locale fallbacks.
 
 Symfony 8 supplies timezone lists, validation primitives, and form options, but applications still need policy for choosing a user's timezone, retaining it, and carrying it through Twig and asynchronous work. This bundle provides that orchestration without changing PHP's process-wide default timezone.
 
