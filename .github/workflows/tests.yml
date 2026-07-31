@@ -16,7 +16,7 @@ jobs:
                   persist-credentials: false
             - uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.3'
                   coverage: none
                   tools: composer:v2
             - run: composer validate --strict --no-check-publish
@@ -31,16 +31,10 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                    - php: '8.2'
-                      symfony: '6.4.*'
-                    - php: '8.3'
-                      symfony: '6.4.*'
-                    - php: '8.2'
-                      symfony: '7.4.*'
                     - php: '8.3'
                       symfony: '7.4.*'
                     - php: '8.4'
-                      symfony: '8.0.*'
+                      symfony: '7.4.*'
                     - php: '8.4'
                       symfony: '8.1.*'
                     - php: '8.5'
@@ -98,11 +92,12 @@ jobs:
                   persist-credentials: false
             - uses: shivammathur/setup-php@v2
               with:
-                  php-version: '8.2'
+                  php-version: '8.3'
                   coverage: none
                   tools: composer:v2
             - run: composer validate --strict --no-check-publish
             - run: composer update --prefer-lowest --prefer-dist --no-interaction --no-progress
+            - run: composer audit --locked --no-dev
             - run: composer check
 
     javascript:

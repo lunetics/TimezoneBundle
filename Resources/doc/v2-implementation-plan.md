@@ -12,7 +12,11 @@ It does not change PHP's process-global timezone, convert stored timestamps, aut
 
 ## Support policy and forward compatibility
 
-The package requires PHP `^8.2` and Symfony components `^6.4 || ^7.4 || ^8.0`. As of July 2026, Symfony 8.1 is the primary current target. Composer `^8.0` deliberately admits forward-compatible Symfony 8.x minors; CI also exercises the declared older lines. Optional integrations fail clearly when explicitly enabled without their component, while `auto` integrations activate only when their framework extension/service is present.
+The package requires PHP `^8.3` and Symfony components `^7.4.13 || ^8.1`. As of July 2026, Symfony 8.1 is the primary current target and 7.4 is the current LTS; Composer `^8.1` deliberately admits forward-compatible Symfony 8.x minors.
+
+The range deliberately tracks maintained lines rather than every installable one. Symfony 8.0 left support in July 2026, Symfony 6.4 stops receiving bug fixes in November 2026 (security-only until November 2027), and PHP 8.2 reaches end of life in December 2026 — a 2.0 released now would ship with a floor that dies within months. The `7.4.13` floor additionally excludes the versions affected by CVE-2026-48736 in `symfony/http-foundation`, whose `IpUtils::PRIVATE_SUBNETS` omits the 6to4 and NAT64 transition prefixes. Applications on Symfony 6.4 stay on the 1.x line, which V2 breaks from regardless.
+
+Optional integrations fail clearly when explicitly enabled without their component, while `auto` integrations activate only when their framework extension/service is present.
 
 Public interfaces and value semantics listed below are the compatibility surface. Internal service construction and listener wiring may evolve without being treated as public API. V2 is a clean break from 1.x and contains no backward-compatibility layer.
 
@@ -164,7 +168,7 @@ Resolver logging uses PSR-3 levels and structured fields: resolver, outcome, dur
 
 ## Testing and CI policy
 
-PHPUnit covers value objects, resolver ordering/ties/failures, shipped resolvers, storage tamper/expiry/security behavior, controller protocol/statuses, context cleanup, Twig/Form/Messenger adapters, profiler/commands, compiler validation, and real-kernel smoke paths. Kernel coverage exercises both accepted and rejected CSRF tokens, the sessionless browser-write `503`, automatic bundle AssetMapper discovery without manually configured asset paths, and profiler serialization/reload. PHPStan is required. CI runs supported Symfony/PHP combinations—including PHP 8.3 with Symfony 6.4—plus prefer-lowest, `composer validate --strict --no-check-publish`, PHPStan, PHPUnit, and a clean `composer --no-dev` package smoke. The target is meaningful contract and branch-boundary coverage, not a promise of full branch coverage.
+PHPUnit covers value objects, resolver ordering/ties/failures, shipped resolvers, storage tamper/expiry/security behavior, controller protocol/statuses, context cleanup, Twig/Form/Messenger adapters, profiler/commands, compiler validation, and real-kernel smoke paths. Kernel coverage exercises both accepted and rejected CSRF tokens, the sessionless browser-write `503`, automatic bundle AssetMapper discovery without manually configured asset paths, and profiler serialization/reload. PHPStan is required. CI runs the supported Symfony/PHP combinations—PHP 8.3/8.4 with Symfony 7.4 and PHP 8.4/8.5 with Symfony 8.1—plus prefer-lowest with a production-dependency audit, `composer validate --strict --no-check-publish`, PHPStan, PHPUnit, and a clean `composer --no-dev` package smoke. The target is meaningful contract and branch-boundary coverage, not a promise of full branch coverage.
 
 The pure module has a small Node test. Browser automation is optional, one-time/local release-confidence work; recurring browser infrastructure or CI is intentionally not required.
 

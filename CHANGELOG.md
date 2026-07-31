@@ -13,5 +13,6 @@
 - Hardened container compilation: integration keys are strict; cookie and MaxMind identifiers are validated; aware-user/accessor exceptions become typed resolver failures; and configured-service alias cycles are rejected.
 - Scoped clock selection to the bundle's internal alias without defining or replacing the application's global PSR clock alias.
 - Hardened browser/session and diagnostics behavior: sessionless session-storage writes return `503`, and profiler data survives profile serialization/reload.
-- Hardened distribution and CI checks with automatic bundle AssetMapper discovery, clean Composer `--no-dev` smoke coverage, PHP 8.3/Symfony 6.4 coverage, and archive retention of linked scope/plan docs and the root `LICENSE`.
+- Hardened distribution and CI checks with automatic bundle AssetMapper discovery, clean Composer `--no-dev` smoke coverage, a production-dependency audit at the dependency floor, and archive retention of linked scope/plan docs and the root `LICENSE`.
+- Requires PHP `^8.3` and Symfony `^7.4.13 || ^8.1`: unmaintained Symfony 8.0, the older 6.4 LTS, and end-of-life PHP 8.2 are outside the supported range, and the floor excludes the versions affected by CVE-2026-48736.
 - Removed the bundle Validator integration and the Symfony Validator requirement. V2 has no 1.x compatibility layer.
