@@ -40,7 +40,7 @@ final readonly class BrowserTimezoneController
         }
         $content = $request->getContent();
         if (strlen($content) > 1024) {
-            return new Response('', 413);
+            return new Response('', Response::HTTP_REQUEST_ENTITY_TOO_LARGE);
         }
         if (null !== $this->csrfTokenManager && !$this->csrfTokenManager->isTokenValid(new CsrfToken($this->csrfTokenId, (string) $request->headers->get($this->csrfHeader, '')))) {
             return new Response('', Response::HTTP_FORBIDDEN);
