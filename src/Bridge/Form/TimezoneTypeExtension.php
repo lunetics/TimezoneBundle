@@ -25,6 +25,21 @@ final class TimezoneTypeExtension extends AbstractTypeExtension
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefault('view_timezone', fn (Options $options): string => $this->provider->getTimezone()->value());
+        $resolver->setDefault('view_timezone', function (Options $options): string {
+            $timezone = $this->provider->getTimezone()->value();
+            // Symfony rejects differing model and view timezones unless a
+            // reference date resolves the offset. An explicitly configured
+            // model timezone therefore wins over the current one, so enabling
+            // this bridge never breaks a form that configures its own model
+            // timezone.
+            // `isset()` on Options only calls offsetExists(), which is true for
+            // a defined-but-null option — the value has to be read instead.
+            $model = $options['model_timezone'] ?? null;
+            if (is_string($model) && $model !== $timezone && null === ($options['reference_date'] ?? null)) {
+                return $model;
+            }
+
+            return $timezone;
+        });
     }
 }

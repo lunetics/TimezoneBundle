@@ -47,6 +47,39 @@ final class TimezoneTypeExtensionTest extends TestCase
         self::assertSame('UTC', $explicit['model_timezone']);
     }
 
+    /** @param class-string<FormTypeInterface<null>> $type */
+    #[DataProvider('typeProvider')]
+    public function testConfiguredModelTimezoneWinsWithoutAReferenceDate(string $type): void
+    {
+        $provider = $this->createStub(CurrentTimezoneProviderInterface::class);
+        $provider->method('getTimezone')->willReturn(TimezoneId::fromString('Europe/Berlin'));
+        $factory = Forms::createFormFactoryBuilder()->addTypeExtension(new TimezoneTypeExtension($provider))->getFormFactory();
+
+        $options = $factory->create($type, null, ['model_timezone' => 'UTC'])->getConfig()->getOptions();
+
+        self::assertSame('UTC', $options['view_timezone'], 'Without a reference date the form must keep its model timezone instead of failing to build.');
+        self::assertSame('UTC', $options['model_timezone']);
+    }
+
+    /** @param class-string<FormTypeInterface<null>> $type */
+    #[DataProvider('typeProvider')]
+    public function testCurrentTimezoneStillAppliesWhenAReferenceDateResolvesTheOffset(string $type): void
+    {
+        $provider = $this->createStub(CurrentTimezoneProviderInterface::class);
+        $provider->method('getTimezone')->willReturn(TimezoneId::fromString('Europe/Berlin'));
+        $factory = Forms::createFormFactoryBuilder()->addTypeExtension(new TimezoneTypeExtension($provider))->getFormFactory();
+        $options = ['model_timezone' => 'UTC'];
+        // Only TimeType exposes reference_date; the other two types resolve the
+        // offset from the date itself.
+        if (TimeType::class === $type) {
+            $options['reference_date'] = new \DateTimeImmutable('2026-01-01', new \DateTimeZone('UTC'));
+        }
+
+        $resolved = $factory->create($type, null, $options)->getConfig()->getOptions();
+
+        self::assertSame(TimeType::class === $type ? 'Europe/Berlin' : 'UTC', $resolved['view_timezone']);
+    }
+
     /** @return iterable<string, array{class-string<FormTypeInterface<null>>}> */
     public static function typeProvider(): iterable
     {
