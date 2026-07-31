@@ -2,7 +2,7 @@
 
 ## Requirements and registration
 
-Install PHP `^8.3` and Symfony `^7.4.13 || ^8.1`, then:
+Install PHP `^8.3` with Symfony `^7.4.13`, or PHP `^8.4` with Symfony `^8.1` (Symfony 8 requires PHP 8.4), then:
 
 ```bash
 composer require lunetics/timezone-bundle

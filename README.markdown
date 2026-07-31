@@ -6,8 +6,8 @@ Symfony 8 supplies timezone lists, validation primitives, and form options, but 
 
 ## Requirements
 
-- PHP `^8.3`
-- Symfony `^7.4.13 || ^8.1`
+- PHP `^8.3` with Symfony `^7.4.13`
+- PHP `^8.4` with Symfony `^8.1` (Symfony 8 requires PHP 8.4)
 
 Symfony 8.1 is the primary current target (July 2026), and `^8.1` intentionally permits compatible later Symfony 8 minors. The supported range covers the maintained lines only: Symfony 8.0 left support in July 2026, Symfony 6.4 stops receiving bug fixes in November 2026, and PHP 8.2 reaches end of life in December 2026. The `7.4.13` floor is the patch line for CVE-2026-48736 in `symfony/http-foundation`.
 
