@@ -20,7 +20,11 @@ final class DebugTimezoneCommandTest extends TestCase
         self::assertSame(0, $tester->execute([]));
         $display = $tester->getDisplay();
         self::assertStringContainsString('Configured default: UTC', $display);
-        self::assertLessThan(strpos($display, 'browser'), strpos($display, 'manual'));
+        $manual = strpos($display, 'manual');
+        $browser = strpos($display, 'browser');
+        self::assertIsInt($manual, 'The manual resolver must be listed.');
+        self::assertIsInt($browser, 'The browser resolver must be listed.');
+        self::assertLessThan($browser, $manual);
         self::assertStringContainsString('925', $display);
         self::assertStringContainsString('800', $display);
     }
