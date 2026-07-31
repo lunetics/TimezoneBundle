@@ -120,6 +120,11 @@ final readonly class CookieTimezoneStorage implements ResponseScopedStorageInter
             }
             $secure = $this->resolveSecure($request);
             $response->headers->setCookie(Cookie::create($this->name, $value, $this->clock->now()->getTimestamp() + $this->maxAge, $this->path, $this->domain, $secure, $this->httpOnly, false, $this->cookieSameSite()));
+        } catch (TimezoneStorageException $failure) {
+            // Defensive: the constructor invariants make resolveSecure()'s
+            // throw unreachable today, but if it ever fires its actionable
+            // message must not be replaced by the generic write-failure text.
+            throw $failure;
         } catch (\JsonException|\LengthException|\RuntimeException $failure) {
             throw TimezoneStorageException::operationFailed('write', $failure);
         }

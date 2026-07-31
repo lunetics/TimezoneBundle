@@ -230,8 +230,8 @@ final class LuneticsTimezoneBundle extends AbstractBundle
         $persistenceStrategy = PersistenceFailureStrategy::from($config['persistence']['failure_strategy']);
         $services->set('lunetics_timezone.resolver.stored_manual', StoredPreferenceTimezoneResolver::class)
             ->args([service(TimezonePreferenceStorageInterface::class), PreferenceSource::MANUAL, $persistenceStrategy])
-            ->tag(TimezoneCompilerPass::RESOLVER_TAG, ['priority' => 925, 'index' => 'stored_manual']);
-        $addToCatalog('stored_manual', 925);
+            ->tag(TimezoneCompilerPass::RESOLVER_TAG, ['priority' => StoredPreferenceTimezoneResolver::MANUAL_PRIORITY, 'index' => 'stored_manual']);
+        $addToCatalog('stored_manual', StoredPreferenceTimezoneResolver::MANUAL_PRIORITY);
 
         if ($resolution['oidc']['enabled']) {
             $oidcService = $resolution['oidc']['service'];
@@ -246,8 +246,8 @@ final class LuneticsTimezoneBundle extends AbstractBundle
 
         $services->set('lunetics_timezone.resolver.stored_browser', StoredPreferenceTimezoneResolver::class)
             ->args([service(TimezonePreferenceStorageInterface::class), PreferenceSource::BROWSER, $persistenceStrategy])
-            ->tag(TimezoneCompilerPass::RESOLVER_TAG, ['priority' => 800, 'index' => 'stored_browser']);
-        $addToCatalog('stored_browser', 800);
+            ->tag(TimezoneCompilerPass::RESOLVER_TAG, ['priority' => StoredPreferenceTimezoneResolver::BROWSER_PRIORITY, 'index' => 'stored_browser']);
+        $addToCatalog('stored_browser', StoredPreferenceTimezoneResolver::BROWSER_PRIORITY);
 
         if ($resolution['maxmind']['enabled']) {
             $reader = $resolution['maxmind']['reader'];
