@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.1 — 2026-08-20
+
+- Corrected the support statement for Symfony 6.4: no released version of this bundle ever supported it, so the legacy 2.1/3.0 line is not a fallback — it installs only on Symfony 2.x.
+- Dated the 4.0.0 changelog entry, which the released archive still labelled as unreleased.
+- The test suite now fails on risky tests, so a teardown that removes PHPUnit's own error handler cannot pass unnoticed.
+- The distribution gate now requires the profiler template in the archive; it is a runtime dependency of the data collector.
+
 ## 4.0.0 — 2026-08-19
 
 - Replaced the legacy Guesser/Event API with ordered, explicitly tagged timezone resolvers and traceable resolution results.
