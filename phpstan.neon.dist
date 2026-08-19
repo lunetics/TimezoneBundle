@@ -1,0 +1,10 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+        - Tests
+    tmpDir: var/phpstan
+    reportUnmatchedIgnoredErrors: true

@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit colors="true"
-         bootstrap="./Tests/bootstrap.php">
-  <testsuites>
-    <testsuite name="LuneticsTimezoneBundle Test Suite">
-      <directory suffix="Test.php">./Tests</directory>
-    </testsuite>
-  </testsuites>
-  <filter>
-    <whitelist>
-      <directory>./</directory>
-      <exclude>
-        <directory>./Tests</directory>
-        <directory>./vendor</directory>
-      </exclude>
-    </whitelist>
-  </filter>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+         bootstrap="Tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         failOnDeprecation="true"
+         failOnNotice="true"
+         failOnWarning="true">
+    <testsuites>
+        <testsuite name="Lunetics TimezoneBundle">
+            <directory suffix="Test.php">Tests</directory>
+        </testsuite>
+    </testsuites>
+    <source ignoreIndirectDeprecations="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
 </phpunit>

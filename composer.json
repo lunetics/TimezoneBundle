@@ -1,31 +1,67 @@
 {
     "name": "lunetics/timezone-bundle",
-    "description": "A Bundle for detecting the timezone",
-    "keywords": ["timezone", "bundle", "time zone"],
+    "description": "User timezone detection and request-scoped timezone state for Symfony applications",
+    "keywords": ["symfony", "timezone", "time zone"],
     "type": "symfony-bundle",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Lunetics",
-            "homepage": "http://www.lunetics.com"
-        }
-    ],
-    "minimum-stability": "dev",
+    "authors": [{"name": "Lunetics", "homepage": "https://www.lunetics.com"}],
     "require": {
-        "php": ">=5.3.3",
-        "symfony/framework-bundle": ">=2.2",
-        "symfony/yaml": "~2.1",
-        "symfony/validator": "~2.1"
+        "php": "^8.3",
+        "psr/clock": "^1",
+        "psr/log": "^3",
+        "symfony/config": "^7.4.13 || ^8.1",
+        "symfony/dependency-injection": "^7.4.13 || ^8.1",
+        "symfony/event-dispatcher-contracts": "^3.5",
+        "symfony/http-foundation": "^7.4.13 || ^8.1",
+        "symfony/http-kernel": "^7.4.13 || ^8.1",
+        "symfony/service-contracts": "^3.5"
     },
     "require-dev": {
-        "ext-intl": "*"
+        "geoip2/geoip2": "^3.4",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-symfony": "^2.0.20",
+        "phpunit/phpunit": "^11.5",
+        "symfony/asset-mapper": "^7.4 || ^8.1",
+        "symfony/console": "^7.4 || ^8.1",
+        "symfony/event-dispatcher": "^7.4 || ^8.1",
+        "symfony/form": "^7.4 || ^8.1",
+        "symfony/framework-bundle": "^7.4 || ^8.1",
+        "symfony/messenger": "^7.4 || ^8.1",
+        "symfony/routing": "^7.4 || ^8.1",
+        "symfony/security-bundle": "^7.4 || ^8.1",
+        "symfony/security-core": "^7.4 || ^8.1",
+        "symfony/security-csrf": "^7.4 || ^8.1",
+        "symfony/serializer": "^7.4 || ^8.1",
+        "symfony/twig-bundle": "^7.4 || ^8.1",
+        "symfony/web-profiler-bundle": "^7.4 || ^8.1",
+        "twig/twig": "^3.0"
     },
     "suggest": {
-          "ext-intl": "Always a good idea :)",
-          "ext-geoip": "*"
+        "ext-intl": "Improves locale parsing for locale-based timezone resolution",
+        "geoip2/geoip2": "Enables MaxMind GeoIP timezone resolution",
+        "symfony/asset-mapper": "Exposes the browser timezone JavaScript asset",
+        "symfony/console": "Enables console integration",
+        "symfony/event-dispatcher": "Provides the default event dispatcher implementation",
+        "symfony/form": "Enables form timezone integration",
+        "symfony/framework-bundle": "Provides full Symfony framework integration",
+        "symfony/messenger": "Enables Messenger timezone context propagation",
+        "symfony/routing": "Enables the opt-in browser preference route",
+        "symfony/security-bundle": "Provides the token storage service used for authenticated user timezone resolution",
+        "symfony/security-core": "Enables authenticated user timezone resolution",
+        "symfony/security-csrf": "Protects the browser preference endpoint",
+        "symfony/twig-bundle": "Enables Twig timezone integration",
+        "symfony/web-profiler-bundle": "Enables timezone resolution diagnostics",
+        "twig/twig": "Enables Twig timezone helpers"
     },
     "autoload": {
-        "psr-0": { "Lunetics\\TimezoneBundle": "" }
+        "psr-4": {"Lunetics\\TimezoneBundle\\": "src/"},
+        "exclude-from-classmap": ["/Tests/"]
     },
-    "target-dir": "Lunetics/TimezoneBundle"
+    "autoload-dev": {"psr-4": {"Lunetics\\TimezoneBundle\\Tests\\": "Tests/"}},
+    "scripts": {
+        "analyse": "phpstan analyse --no-progress --memory-limit=512M",
+        "test": "phpunit",
+        "check": ["@analyse", "@test"]
+    },
+    "config": {"allow-plugins": false, "sort-packages": true}
 }

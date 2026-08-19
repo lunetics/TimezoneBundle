@@ -1,0 +1,39 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set diagnostics = collector.diagnostics %}
+    {% if diagnostics.effective_timezone %}
+        {% set icon %}TZ{% endset %}
+        {% set text %}{{ diagnostics.effective_timezone }}{% endset %}
+        {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', {link: profiler_url}) }}
+    {% endif %}
+{% endblock %}
+
+{% block menu %}
+    <span class="label {{ collector.diagnostics.effective_timezone ? '' : 'disabled' }}">
+        <span class="icon">TZ</span>
+        <strong>Timezone</strong>
+    </span>
+{% endblock %}
+
+{% block panel %}
+    {% set diagnostics = collector.diagnostics %}
+    <h2>Timezone</h2>
+    <div class="metrics">
+        <div class="metric"><span class="value">{{ diagnostics.effective_timezone|default('n/a') }}</span><span class="label">Effective timezone</span></div>
+        <div class="metric"><span class="value">{{ diagnostics.configured_default }}</span><span class="label">Configured default</span></div>
+    </div>
+    <h2>Resolution attempts</h2>
+    <table>
+        <thead><tr><th>Resolver</th><th>Outcome</th><th>Source</th><th>Duration (μs)</th></tr></thead>
+        <tbody>
+        {% for attempt in diagnostics.attempts %}
+            <tr><td>{{ attempt.resolver }}</td><td>{{ attempt.outcome }}</td><td>{{ attempt.source|default('') }}</td><td>{{ attempt.duration_microseconds }}</td></tr>
+        {% else %}
+            <tr><td colspan="4">No resolver attempts recorded.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <h2>Preference diagnostics</h2>
+    <p>Read: {{ diagnostics.preference_read ? diagnostics.preference_read_status : 'no' }}; written: {{ diagnostics.preference_written ? 'yes' : 'no' }}; cleared: {{ diagnostics.preference_cleared ? 'yes' : 'no' }}</p>
+{% endblock %}
