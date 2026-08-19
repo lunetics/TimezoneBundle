@@ -15,7 +15,7 @@ final class ExportPolicyTest extends TestCase
         'README.markdown',
         'Resources',
         'src',
-        'UPGRADE-2.0.md',
+        'UPGRADE-4.0.md',
     ];
 
     private const REQUIRED_PATHS = [
@@ -25,9 +25,9 @@ final class ExportPolicyTest extends TestCase
         'README.markdown',
         'Resources/config/routes.php',
         'Resources/doc/scope.md',
-        'Resources/doc/v2-implementation-plan.md',
+        'Resources/doc/v4-implementation-plan.md',
         'Resources/public/timezone.js',
-        'UPGRADE-2.0.md',
+        'UPGRADE-4.0.md',
         'src/LuneticsTimezoneBundle.php',
     ];
 

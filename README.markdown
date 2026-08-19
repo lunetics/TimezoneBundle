@@ -1,4 +1,4 @@
-# LuneticsTimezoneBundle 2.x
+# LuneticsTimezoneBundle 4.x
 
 LuneticsTimezoneBundle resolves an IANA timezone once per main Symfony request — subrequests reuse that result — and exposes it through a stable application context. It can combine explicit request data, trusted headers, persisted preferences, authenticated users, OIDC claims, MaxMind City data, and locale fallbacks.
 
@@ -56,8 +56,8 @@ final class LocalClock
 - [Installation and configuration](Resources/doc/installation.md)
 - [Resolvers and precedence](Resources/doc/resolvers.md)
 - [Scope and non-goals](Resources/doc/scope.md)
-- [V2 architecture, contracts, and ADRs](Resources/doc/v2-implementation-plan.md)
-- [Upgrade from 1.x](UPGRADE-2.0.md)
+- [4.0 architecture, contracts, and ADRs](Resources/doc/v4-implementation-plan.md)
+- [Upgrade from 2.1/3.0](UPGRADE-4.0.md)
 - [Changelog](CHANGELOG.md)
 
 ## Adapters

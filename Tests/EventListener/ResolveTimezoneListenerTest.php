@@ -21,7 +21,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-final class ResolveTimezoneListenerV2Test extends TestCase
+final class ResolveTimezoneListenerTest extends TestCase
 {
     public function testFixedRequestPriority(): void
     {

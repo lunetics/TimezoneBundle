@@ -1,10 +1,10 @@
-# V2 technical plan, ADR, and contracts
+# 4.0 technical plan, ADR, and contracts
 
-**Status: implemented and current (July 2026).** This is the sole authoritative technical plan and architecture decision record for V2. User-facing setup remains in [installation.md](installation.md).
+**Status: implemented and current (July 2026).** This is the sole authoritative technical plan and architecture decision record for 4.0. User-facing setup remains in [installation.md](installation.md).
 
 ## Goals and non-goals
 
-V2 provides deterministic per-request IANA timezone resolution; validated value objects; session, cookie, or custom persistence; an application-facing current-timezone provider; bounded execution context; browser synchronization; optional user, OIDC, MaxMind City, locale, Twig, Form, Messenger, profiler, and console adapters; and redacted diagnostics.
+4.0 provides deterministic per-request IANA timezone resolution; validated value objects; session, cookie, or custom persistence; an application-facing current-timezone provider; bounded execution context; browser synchronization; optional user, OIDC, MaxMind City, locale, Twig, Form, Messenger, profiler, and console adapters; and redacted diagnostics.
 
 `CallableTimezoneResolver` is the shipped convenience boundary for application `callable(Request): mixed` resolvers. It requires a safe lowercase source matching `^[a-z][a-z0-9_.-]{0,99}$`, defaults its kind to `INFERRED`, passes through `null` and `TimezoneResolution`, validates strings through `TimezoneId`, wraps `TimezoneId` with its configured source/kind, and rejects unsupported results with `TimezoneResolverException`. `InvalidTimezoneException` and `TimezoneResolverException` follow `resolution.failure_strategy`; deliberately thrown `TimezoneResolverException` is therefore policy-controlled, while unrelated exceptions and errors bubble. The adapter is not auto-registered and requires the same explicit resolver tag as any custom resolver.
 
@@ -14,11 +14,11 @@ It does not change PHP's process-global timezone, convert stored timestamps, aut
 
 The package requires PHP `^8.3` and Symfony components `^7.4.13 || ^8.1`. As of July 2026, Symfony 8.1 is the primary current target and 7.4 is the current LTS; Composer `^8.1` deliberately admits forward-compatible Symfony 8.x minors.
 
-The range deliberately tracks maintained lines rather than every installable one. Symfony 8.0 left support in July 2026, Symfony 6.4 stops receiving bug fixes in November 2026 (security-only until November 2027), and PHP 8.2 reaches end of life in December 2026 — a 2.0 released now would ship with a floor that dies within months. The `7.4.13` floor additionally excludes the versions affected by CVE-2026-48736 in `symfony/http-foundation`, whose `IpUtils::PRIVATE_SUBNETS` omits the 6to4 and NAT64 transition prefixes. Applications on Symfony 6.4 stay on the 1.x line, which V2 breaks from regardless.
+The range deliberately tracks maintained lines rather than every installable one. Symfony 8.0 left support in July 2026, Symfony 6.4 stops receiving bug fixes in November 2026 (security-only until November 2027), and PHP 8.2 reaches end of life in December 2026 — a new major released now would ship with a floor that dies within months. The `7.4.13` floor additionally excludes the versions affected by CVE-2026-48736 in `symfony/http-foundation`, whose `IpUtils::PRIVATE_SUBNETS` omits the 6to4 and NAT64 transition prefixes. Applications on Symfony 6.4 stay on the legacy 3.0 line, which 4.0 breaks from regardless.
 
 Optional integrations fail clearly when explicitly enabled without their component, while `auto` integrations activate only when their framework extension/service is present.
 
-Public interfaces and value semantics listed below are the compatibility surface. Internal service construction and listener wiring may evolve without being treated as public API. V2 is a clean break from 1.x and contains no backward-compatibility layer.
+Public interfaces and value semantics listed below are the compatibility surface. Internal service construction and listener wiring may evolve without being treated as public API. 4.0 is a clean break from the legacy 2.1/3.0 line and contains no backward-compatibility layer.
 
 ## Architecture and data flow
 
@@ -126,7 +126,7 @@ Every built-in storage envelope has exactly these keys in order: `v`, `timezone`
 
 Cookie storage serializes the same versioned envelope as JSON, base64url-encodes it, and appends a base64url HMAC-SHA-256 signature over the encoded payload. The HMAC key is derived from the configured secret using HKDF-SHA-256, length 32, info `lunetics-timezone-cookie-v1`. Reads use constant-time signature comparison, enforce encoded-size, schema/version, timezone/source/time, future-skew, and maximum-age checks, and classify bad input without exposing it. Cookie settings cover name, age, path, domain, secure, HttpOnly, SameSite, skew, and maximum size. `SameSite=None`, `__Host-`, and `__Secure-` require explicit `secure=true`; `__Host-` also requires `/` and no domain.
 
-Custom storage is selected by service ID and must implement the exact request/response-aware interface. V2 ships no Doctrine or Redis implementation.
+Custom storage is selected by service ID and must implement the exact request/response-aware interface. 4.0 ships no Doctrine or Redis implementation.
 
 Session storage reads and cleanup do not start a missing session. Writes require Framework session configuration; if the request has no session, the storage raises a typed failure and the browser endpoint returns `503`.
 
@@ -191,12 +191,12 @@ Distribution verification uses the Composer export/archive view: excluded develo
 
 ## Migration and release checklist
 
-- Remove every 1.x Guesser, manager, event, listener, provider, and bundle-validator reference; there is no BC layer.
+- Remove every legacy Guesser, manager, event, listener, provider, and bundle-validator reference; there is no BC layer.
 - Replace application access with `CurrentTimezoneProviderInterface`; replace guessers with explicitly tagged `TimezoneResolverInterface` services.
-- Choose session, signed cookie, or custom storage and migrate/discard old persisted values; V2 expects the version-1 envelope.
+- Choose session, signed cookie, or custom storage and migrate/discard old persisted values; 4.0 expects the version-1 envelope.
 - Implement user/OIDC/MaxMind contracts explicitly where required.
 - Import the browser route only if enabled, provide CSRF token/header, and load the pure ES module.
 - Add both Messenger middleware service IDs to the intended bus configuration; verify ordering around send/handle middleware.
 - Review header trust, cookie `secure`/SameSite/`__Host-`, failure strategies, and logging redaction.
 - Run `composer validate --strict --no-check-publish`, `composer check`, `npm test`, the local kernel integration test, and targeted stale-API searches.
-- Confirm README/docs links, changelog, upgrade guide, package contents, and supported dependency matrix before tagging 2.0.0.
+- Confirm README/docs links, changelog, upgrade guide, package contents, and supported dependency matrix before tagging 4.0.0.

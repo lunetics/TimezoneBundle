@@ -1,19 +1,19 @@
-# Upgrading to LuneticsTimezoneBundle 2.0
+# Upgrading to LuneticsTimezoneBundle 4.0
 
-V2 is a clean break. It contains no backward-compatibility layer, aliases, adapters, or deprecation bridge for 1.x APIs. Remove old usage before upgrading and migrate persisted preference data explicitly or let V2 create new values.
+4.0 is a clean break. It contains no backward-compatibility layer, aliases, adapters, or deprecation bridge for the legacy 2.1/3.0 APIs. Remove old usage before upgrading and migrate persisted preference data explicitly or let 4.0 create new values.
 
 ## API migration
 
 - Replace `TimezoneGuesserInterface` implementations with `Lunetics\TimezoneBundle\Resolver\TimezoneResolverInterface`. Register each service explicitly with `lunetics_timezone.resolver`, a unique `index`, and the intended `priority`.
-- Replace `TimezoneGuesserManager`, `GeoTimezoneGuesser`, `LocaleTimezoneGuesser`, and `LocalemapperTimezoneGuesser` configuration with V2 resolver configuration or a custom resolver.
+- Replace `TimezoneGuesserManager`, `GeoTimezoneGuesser`, `LocaleTimezoneGuesser`, and `LocalemapperTimezoneGuesser` configuration with 4.0 resolver configuration or a custom resolver.
 - Replace `TimezoneProvider\TimezoneProvider` injection with `Context\CurrentTimezoneProviderInterface`. Use `getTimezone()`, `getDateTimeZone()`, or `getResolution()`.
 - Replace `TimezoneBundleEvents`, `FilterTimezoneEvent`, and old timezone listeners with `TimezoneResolvedEvent`, `TimezonePreferenceChangedEvent`, or a custom resolver as appropriate.
-- Remove the bundle's old `Validator\Timezone` constraint and validator. V2 validates `TimezoneId` at its own boundaries and does not require Symfony Validator.
+- Remove the bundle's old `Validator\Timezone` constraint and validator. 4.0 validates `TimezoneId` at its own boundaries and does not require Symfony Validator.
 - Replace old guesser configuration with the `resolution`, `persistence`, `browser`, and `integrations` trees documented in [installation](Resources/doc/installation.md).
 
 ## Persistence and identity
 
-V2 storage implements `TimezonePreferenceStorageInterface`; its `read()` receives a `Request`, while `write()` and `clear()` receive both `Request` and `Response`. Built-in state uses the versioned envelope `v`, `timezone`, `source`, `recorded_at`. Old session/cookie values are not a supported V2 format. The configured storage service is decorated by the bundle (write tracking for the invalid-preference cleanup): type-hint `TimezonePreferenceStorageInterface` when injecting it — the concrete class id resolves to the decorator, so a concrete type-hint fails loudly instead of bypassing the tracking.
+4.0 storage implements `TimezonePreferenceStorageInterface`; its `read()` receives a `Request`, while `write()` and `clear()` receive both `Request` and `Response`. Built-in state uses the versioned envelope `v`, `timezone`, `source`, `recorded_at`. Old session/cookie values are not a supported 4.0 format. The configured storage service is decorated by the bundle (write tracking for the invalid-preference cleanup): type-hint `TimezonePreferenceStorageInterface` when injecting it — the concrete class id resolves to the decorator, so a concrete type-hint fails loudly instead of bypassing the tracking.
 
 Authenticated users either implement `TimezoneAwareUserInterface::getTimezone(): TimezoneId|string|null` or use an explicit `UserTimezoneAccessorInterface`. OIDC claims require an explicit `OidcClaimsProviderInterface`; the default claim is `zoneinfo`, and no reflection/provider-specific integration remains. The public resolution source is `oidc_zoneinfo` for the default `zoneinfo` claim. Any customized claim uses `oidc_claim_<hash>`, where `<hash>` is the first 16 lowercase hexadecimal SHA-256 characters of the exact case-sensitive configured claim name. This bounded hash keeps raw/custom claim names out of diagnostics while remaining stable.
 
@@ -34,11 +34,11 @@ Authenticated users either implement `TimezoneAwareUserInterface::getTimezone():
 
 ## Migration sequence
 
-1. Remove all 1.x bundle configuration and obsolete API imports.
-2. Register the V2 bundle and start from the minimal configuration.
-3. Port custom resolution and storage services to the exact V2 contracts.
-4. Choose how old preferences are discarded or transformed into the V2 envelope.
+1. Remove all legacy bundle configuration and obsolete API imports.
+2. Register the 4.0 bundle and start from the minimal configuration.
+3. Port custom resolution and storage services to the exact 4.0 contracts.
+4. Choose how old preferences are discarded or transformed into the 4.0 envelope.
 5. Wire optional route, CSRF, asset, Twig/Form/Messenger, OIDC, and MaxMind features explicitly.
 6. Verify resolver order with `bin/console debug:timezone` and exercise application requests, workers, and preference writes.
 
-See the [authoritative V2 contracts and ADR](Resources/doc/v2-implementation-plan.md) for exact behavior.
+See the [authoritative 4.0 contracts and ADR](Resources/doc/v4-implementation-plan.md) for exact behavior.

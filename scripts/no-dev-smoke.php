@@ -34,7 +34,7 @@ foreach ([
     'Resources/public/timezone.js',
     'Resources/views/Collector/timezone.html.twig',
     'Resources/doc/scope.md',
-    'Resources/doc/v2-implementation-plan.md',
+    'Resources/doc/v4-implementation-plan.md',
     'LICENSE',
 ] as $runtimeFile) {
     if (!is_file($root.'/'.$runtimeFile)) {
