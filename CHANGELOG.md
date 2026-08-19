@@ -1,6 +1,6 @@
 # Changelog
 
-## 4.0.0 — unreleased
+## 4.0.0 — 2026-08-19
 
 - Replaced the legacy Guesser/Event API with ordered, explicitly tagged timezone resolvers and traceable resolution results.
 - Added validated `TimezoneId`, per-request current-timezone provider, and bounded execution context without global timezone mutation.
