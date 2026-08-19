@@ -6,6 +6,7 @@
          colors="true"
          failOnDeprecation="true"
          failOnNotice="true"
+         failOnRisky="true"
          failOnWarning="true">
     <testsuites>
         <testsuite name="Lunetics TimezoneBundle">
