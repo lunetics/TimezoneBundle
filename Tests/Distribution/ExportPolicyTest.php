@@ -27,6 +27,7 @@ final class ExportPolicyTest extends TestCase
         'Resources/doc/scope.md',
         'Resources/doc/v4-implementation-plan.md',
         'Resources/public/timezone.js',
+        'Resources/views/Collector/timezone.html.twig',
         'UPGRADE-4.0.md',
         'src/LuneticsTimezoneBundle.php',
     ];
